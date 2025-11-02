@@ -18,7 +18,7 @@ const cities = [
   { code: "3304557", name: "Rio de Janeiro", state: "RJ", coordinates: { lat: -22.9068, lon: -43.1729 } },
 ];
 
-// Mock zones de risco
+// Mock zones de risco - apenas ALTO e CRÍTICO
 const mockZones = [
   {
     id: 1,
@@ -31,26 +31,74 @@ const mockZones = [
   {
     id: 2,
     coordinates: { lat: -25.4384, lon: -49.2633 },
+    score: 72,
+    level: "CRÍTICO",
+    total_imoveis: 38,
+    populacao_estimada: 121,
+  },
+  {
+    id: 3,
+    coordinates: { lat: -25.4184, lon: -49.2833 },
+    score: 78,
+    level: "CRÍTICO",
+    total_imoveis: 41,
+    populacao_estimada: 135,
+  },
+  {
+    id: 4,
+    coordinates: { lat: -25.4484, lon: -49.2533 },
     score: 65,
     level: "ALTO",
     total_imoveis: 32,
     populacao_estimada: 98,
   },
   {
-    id: 3,
-    coordinates: { lat: -25.4184, lon: -49.2833 },
-    score: 45,
-    level: "MODERADO",
-    total_imoveis: 23,
-    populacao_estimada: 67,
+    id: 5,
+    coordinates: { lat: -25.4184, lon: -49.2633 },
+    score: 58,
+    level: "ALTO",
+    total_imoveis: 28,
+    populacao_estimada: 84,
   },
   {
-    id: 4,
-    coordinates: { lat: -25.4484, lon: -49.2533 },
-    score: 25,
-    level: "BAIXO",
-    total_imoveis: 15,
-    populacao_estimada: 42,
+    id: 6,
+    coordinates: { lat: -25.4384, lon: -49.2833 },
+    score: 62,
+    level: "ALTO",
+    total_imoveis: 35,
+    populacao_estimada: 105,
+  },
+  {
+    id: 7,
+    coordinates: { lat: -25.4484, lon: -49.2733 },
+    score: 69,
+    level: "ALTO",
+    total_imoveis: 40,
+    populacao_estimada: 118,
+  },
+  {
+    id: 8,
+    coordinates: { lat: -25.4084, lon: -49.2733 },
+    score: 81,
+    level: "CRÍTICO",
+    total_imoveis: 45,
+    populacao_estimada: 142,
+  },
+  {
+    id: 9,
+    coordinates: { lat: -25.4284, lon: -49.2533 },
+    score: 55,
+    level: "ALTO",
+    total_imoveis: 29,
+    populacao_estimada: 87,
+  },
+  {
+    id: 10,
+    coordinates: { lat: -25.4584, lon: -49.2633 },
+    score: 74,
+    level: "CRÍTICO",
+    total_imoveis: 43,
+    populacao_estimada: 138,
   },
 ];
 
@@ -114,30 +162,18 @@ const ClimaSeguro = () => {
         ) : (
           <div className="space-y-6">
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <StatCard
                 icon="🔴"
                 label="Crítico"
-                value="3"
+                value="5"
                 color="bg-red-100 text-red-700 border-red-300"
               />
               <StatCard
                 icon="🟠"
                 label="Alto"
-                value="7"
+                value="5"
                 color="bg-orange-100 text-orange-700 border-orange-300"
-              />
-              <StatCard
-                icon="🟡"
-                label="Moderado"
-                value="12"
-                color="bg-yellow-100 text-yellow-700 border-yellow-300"
-              />
-              <StatCard
-                icon="🟢"
-                label="Baixo"
-                value="8"
-                color="bg-green-100 text-green-700 border-green-300"
               />
             </div>
 
@@ -159,14 +195,6 @@ const ClimaSeguro = () => {
                 <div className="flex items-center gap-2">
                   <div className="h-3 w-3 rounded-full bg-orange-500"></div>
                   <span>Alto (50-69)</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="h-3 w-3 rounded-full bg-yellow-500"></div>
-                  <span>Moderado (30-49)</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="h-3 w-3 rounded-full bg-green-500"></div>
-                  <span>Baixo (&lt;30)</span>
                 </div>
               </div>
             </div>
