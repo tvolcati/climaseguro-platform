@@ -8,6 +8,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import logoSvg from "@/assets/clima-seguro-logo.svg";
+import Map from "@/components/Map";
 
 // Mock data - substituir pelos dados reais depois
 const cities = [
@@ -16,8 +17,54 @@ const cities = [
   { code: "3304557", name: "Rio de Janeiro", state: "RJ", coordinates: { lat: -22.9068, lon: -43.1729 } },
 ];
 
+// Mock zones de risco
+const mockZones = [
+  {
+    id: 1,
+    coordinates: { lat: -25.4284, lon: -49.2733 },
+    score: 85,
+    level: "CRÍTICO",
+    total_imoveis: 47,
+    populacao_estimada: 152,
+  },
+  {
+    id: 2,
+    coordinates: { lat: -25.4384, lon: -49.2633 },
+    score: 65,
+    level: "ALTO",
+    total_imoveis: 32,
+    populacao_estimada: 98,
+  },
+  {
+    id: 3,
+    coordinates: { lat: -25.4184, lon: -49.2833 },
+    score: 45,
+    level: "MODERADO",
+    total_imoveis: 23,
+    populacao_estimada: 67,
+  },
+  {
+    id: 4,
+    coordinates: { lat: -25.4484, lon: -49.2533 },
+    score: 25,
+    level: "BAIXO",
+    total_imoveis: 15,
+    populacao_estimada: 42,
+  },
+];
+
 const ClimaSeguro = () => {
   const [selectedCity, setSelectedCity] = useState<string>("");
+  
+  const getCityCoordinates = (): [number, number] => {
+    const city = cities.find(c => c.code === selectedCity);
+    return city ? [city.coordinates.lat, city.coordinates.lon] : [-25.4284, -49.2733];
+  };
+
+  const handleZoneClick = (zone: any) => {
+    console.log("Zona clicada:", zone);
+    // TODO: Abrir modal com detalhes da zona
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -91,17 +138,32 @@ const ClimaSeguro = () => {
               />
             </div>
 
-            {/* Map Placeholder */}
-            <div className="rounded-lg border bg-card p-8 shadow-sm">
-              <div className="flex min-h-[600px] items-center justify-center">
-                <div className="text-center">
-                  <div className="mb-4 text-6xl">🗺️</div>
-                  <h3 className="mb-2 text-xl font-bold text-foreground">
-                    Mapa em desenvolvimento
-                  </h3>
-                  <p className="text-muted-foreground">
-                    Integração com Leaflet e OpenStreetMap será adicionada
-                  </p>
+            {/* Mapa Leaflet */}
+            <div className="rounded-lg border bg-card p-4 shadow-sm">
+              <h3 className="mb-4 text-lg font-bold text-foreground">
+                🗺️ Mapa de Zonas de Risco
+              </h3>
+              <Map 
+                center={getCityCoordinates()} 
+                zones={mockZones}
+                onZoneClick={handleZoneClick}
+              />
+              <div className="mt-4 flex items-center gap-4 text-sm text-muted-foreground">
+                <div className="flex items-center gap-2">
+                  <div className="h-3 w-3 rounded-full bg-red-500"></div>
+                  <span>Crítico (≥70)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="h-3 w-3 rounded-full bg-orange-500"></div>
+                  <span>Alto (50-69)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="h-3 w-3 rounded-full bg-yellow-500"></div>
+                  <span>Moderado (30-49)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="h-3 w-3 rounded-full bg-green-500"></div>
+                  <span>Baixo (&lt;30)</span>
                 </div>
               </div>
             </div>
