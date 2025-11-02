@@ -1,0 +1,13 @@
+Fundo Nacional sobre Mudança do Clima - OrcamentoIntervencoes
+
+Gerado em: 02/11/2025 09:52
+
+Contexto do Processo:
+
+- process_id: 2
+
+- zone_id: 23
+
+- form: {'responsavel': 'sdf', 'data_vistoria': '19991-02-23', 'observacoes': 'asd', 'acao_imediata': 'asd'}
+
+- photos: [{'path': 'C:\\Users\\pc\\OneDrive\\Desktop\\INTELI\\climaseguro-platform\\storage\\images\\2\\0_Captura de tela 2025-08-08 161341.png', 'description': "Descrição automática: análise técnica preliminar – arquivo '0_Captura de tela 2025-08-08 161341.png'."}]
