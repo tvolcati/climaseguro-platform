@@ -142,7 +142,7 @@ const PrefeituraZoneModal = ({ zone, open, onOpenChange }: PrefeituraZoneModalPr
               <div className="flex-1">
                 <h4 className="font-semibold text-blue-900 mb-1">Análise de Imagens de Satélite</h4>
                 <p className="text-sm text-blue-800">
-                  O número de imóveis afetados foi estimado utilizando <strong>API do Mapbox</strong> 
+                  O número de imóveis afetados foi estimado utilizando <strong>API do ARCgis</strong> 
                   combinada com <strong>Inteligência Artificial</strong> para contagem automática de residências 
                   visíveis em imagens de satélite de alta resolução.
                 </p>
