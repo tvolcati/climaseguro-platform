@@ -1,15 +1,18 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
-// Fix do ícone padrão do Leaflet (necessário no React)
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
-  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-});
+// Fix do ícone padrão do Leaflet
+const fixLeafletIcons = () => {
+  // @ts-ignore
+  delete L.Icon.Default.prototype._getIconUrl;
+  L.Icon.Default.mergeOptions({
+    iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+    iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+    shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+  });
+};
 
 // Criar ícones customizados por nível de risco
 const createCustomIcon = (score: number, zoneId: number) => {
@@ -60,6 +63,24 @@ function ChangeMapView({ center }: { center: [number, number] }) {
 }
 
 const Map = ({ center, zones, onZoneClick }: MapProps) => {
+  const [mapReady, setMapReady] = useState(false);
+
+  useEffect(() => {
+    fixLeafletIcons();
+    setMapReady(true);
+  }, []);
+
+  if (!mapReady) {
+    return (
+      <div className="flex items-center justify-center" style={{ width: "100%", height: "600px" }}>
+        <div className="text-center">
+          <div className="text-4xl mb-2">🗺️</div>
+          <p className="text-muted-foreground">Carregando mapa...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <MapContainer
       center={center}
