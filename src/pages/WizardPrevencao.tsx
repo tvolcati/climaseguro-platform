@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -13,6 +13,7 @@ import { apiCreateProcess, apiUploadPhotos, apiSubmitForm, apiListFunds, apiGene
 const WizardPrevencao = () => {
   const { zoneId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation() as any;
   const [currentStep, setCurrentStep] = useState(1);
   const [uploadedPhotos, setUploadedPhotos] = useState<File[]>([]);
   const [photosAI, setPhotosAI] = useState<{ id: number; filePath: string; description: string }[]>([]);
@@ -49,9 +50,27 @@ const WizardPrevencao = () => {
           return;
         }
         setLoading(true);
-        const { processId: pid } = await apiCreateProcess(Number(zoneId));
+        const initialContext = location?.state?.context;
+        const { processId: pid } = await apiCreateProcess(Number(zoneId), initialContext);
         setProcessId(pid);
-        const { photos } = await apiUploadPhotos(pid, uploadedPhotos);
+        let pidToUse = pid;
+        let photosResp;
+        try {
+          const { photos } = await apiUploadPhotos(pidToUse, uploadedPhotos);
+          photosResp = photos;
+        } catch (e: any) {
+          // Recria processo e tenta novamente se, por algum motivo, o primeiro id ainda não existir (condições de corrida em reset de DB)
+          if (String(e?.message || "").includes("404")) {
+            const { processId: pid2 } = await apiCreateProcess(Number(zoneId), initialContext);
+            setProcessId(pid2);
+            pidToUse = pid2;
+            const { photos } = await apiUploadPhotos(pidToUse, uploadedPhotos);
+            photosResp = photos;
+          } else {
+            throw e;
+          }
+        }
+        const photos = photosResp || [];
         setPhotosAI(photos);
         toast.success("Fotos enviadas e descritas por IA");
         setCurrentStep(2);

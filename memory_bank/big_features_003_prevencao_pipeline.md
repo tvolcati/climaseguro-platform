@@ -395,5 +395,17 @@ Fases e entradas/saídas:
 6. Doc Gen v2: prompts por fundo e renderização para PDF (fase 2 se necessário; começar com `.txt`).
 7. Observabilidade: logar `process_id` e tempo em cada etapa.
 
+---
+
+## Implementação v2 – andamento
+
+- DB atualizado com `context_json` e auditoria em `generated_document`.
+- Startup com `RESET_DB_ON_STARTUP` para reset no desenvolvimento.
+- API atualizada para manter contexto conforme as etapas.
+- Novo serviço `backend/services/context_builder.py` para consolidar contexto antes da geração.
+- `services/doc_gen.py` agora recebe `context` e grava `prompt_version` e `inputs_hash` no retorno.
+- `POST /gerar-documentos` passou a usar `context_builder` e a salvar auditoria nos registros.
+- Front envia `context` ao criar processo (dados do modal) via `navigate` state → `WizardPrevencao` → `apiCreateProcess(context)`.
+
 
 

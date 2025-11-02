@@ -1,0 +1,196 @@
+{
+  "document_templates": [
+    {
+      "fund_name": "MDR/SEDEC - Transferências Obrigatórias",
+      "doc_type": "PlanoTrabalhoPreven ção",
+      "mandatory_sections": [
+        {
+          "section": "Identificação do Ente",
+          "description": "Nome município, CNPJ, endereço, contatos",
+          "evidence": []
+        },
+        {
+          "section": "Descrição Detalhada Ações",
+          "description": "Dimensões, solução técnica, coordenadas geográficas ponto/trecho intervenção",
+          "evidence": [
+            "fotos georreferenciadas",
+            "mapas risco"
+          ]
+        },
+        {
+          "section": "Análise Ameaças e Vulnerabilidades",
+          "description": "Diagnóstico riscos existentes (deslizamentos, inundações)",
+          "evidence": [
+            "laudos técnicos geológico-geotécnicos",
+            "relatório diagnóstico"
+          ]
+        },
+        {
+          "section": "Orçamento Detalhado",
+          "description": "Custo global estimado com demonstrativo cálculo, BDI, composições",
+          "evidence": [
+            "planilha orçamentária detalhada"
+          ]
+        },
+        {
+          "section": "Cronograma Físico-Financeiro",
+          "description": "Etapas execução com prazos e desembolsos previstos",
+          "evidence": [
+            "cronograma Gantt ou similar"
+          ]
+        },
+        {
+          "section": "Metas Mensuráveis",
+          "description": "Indicadores quantitativos (população beneficiada, área protegida)",
+          "evidence": []
+        }
+      ],
+      "data_inputs_mapping": {
+        "from_context_model": [
+          "zone.id (identificação célula/área risco)",
+          "zone.coordinates (lat/lng pontos intervenção)",
+          "zone.risk_score (nível risco Alto/Muito Alto)",
+          "demographics.households (domicílios afetados)",
+          "demographics.population (população residente área)",
+          "financials.prevention_cost_estimate (custo obras prevenção)",
+          "financials.reconstruction_cost_avoided (ROI prevenção)",
+          "form.responsible_name (coordenador defesa civil)",
+          "form.immediate_action (medidas emergenciais tomadas)",
+          "photos[].description (evidências diagnóstico)"
+        ],
+        "external_inputs": [
+          "ART/RRT responsável técnico",
+          "Ato criação órgão defesa civil",
+          "Decreto municipal (se aplicável)",
+          "Licenças ambientais prévias"
+        ]
+      },
+      "formatting_rules": {
+        "file_type": "PDF conforme modelo MDR",
+        "font_min_size": 11,
+        "margins": "padrão ABNT 2cm",
+        "max_pages": null
+      },
+      "signature_requirements": [
+        "Prefeito",
+        "Secretário Defesa Civil ou equivalente",
+        "Responsável técnico com ART/RRT"
+      ],
+      "validation_checklist": [
+        "Todas seções preenchidas conforme modelo MDR",
+        "Coordenadas geográficas presentes (formato decimal graus)",
+        "Orçamento com BDI e composições unitárias",
+        "Fotos georreferenciadas anexadas",
+        "Mapas de risco legíveis e georref",
+        "ART/RRT anexada",
+        "Ato criação defesa civil anexado",
+        "Assinaturas presentes e legíveis"
+      ],
+      "sources": [
+        "https://www.gov.br/mdr/pt-br/assuntos/protecao-e-defesa-civil/solicitacao-de-recursos-1"
+      ],
+      "last_verified_at": "2025-11-02"
+    },
+    {
+      "fund_name": "Fundo Clima BNDES/MMA",
+      "doc_type": "ProjetoExecutivoAdaptacao",
+      "mandatory_sections": [
+        {
+          "section": "Resumo Executivo",
+          "description": "Síntese projeto: localização, objetivos, benefícios climáticos esperados",
+          "evidence": []
+        },
+        {
+          "section": "Diagnóstico Vulnerabilidades Climáticas",
+          "description": "Análise riscos climáticos (eventos extremos, projeções futuras)",
+          "evidence": [
+            "dados climáticos históricos",
+            "projeções IPCC/modelos climáticos"
+          ]
+        },
+        {
+          "section": "Descrição Técnica Intervenções",
+          "description": "Soluções propostas (SBN ou infraestrutura), dimensionamento, tecnologias",
+          "evidence": [
+            "plantas",
+            "memoriais descritivos",
+            "especificações técnicas"
+          ]
+        },
+        {
+          "section": "Georreferenciamento",
+          "description": "Coordenadas precisas todas intervenções propostas",
+          "evidence": [
+            "mapas shapefile/GeoJSON",
+            "imagens satélite"
+          ]
+        },
+        {
+          "section": "Orçamento e Cronograma",
+          "description": "Custos discriminados, fontes recursos (Fundo Clima + contrapartida), etapas execução",
+          "evidence": [
+            "planilha orçamentária",
+            "cronograma Gantt"
+          ]
+        },
+        {
+          "section": "Indicadores Impacto Climático",
+          "description": "Emissões evitadas/removidas (tCO2e), população beneficiada, redução vulnerabilidade",
+          "evidence": [
+            "cálculos metodologia BNDES",
+            "baseline + cenário projetado"
+          ]
+        },
+        {
+          "section": "Sustentabilidade e Gestão",
+          "description": "Plano manutenção pós-implantação, envolvimento comunitário, capacitação",
+          "evidence": [
+            "plano gestão",
+            "termo compromisso comunidade"
+          ]
+        }
+      ],
+      "data_inputs_mapping": {
+        "from_context_model": [
+          "zone.* (células grid com imperviousness, tree_canopy, slope)",
+          "demographics.* (população, domicílios por setor)",
+          "financials.prevention_cost (custo SBN vs infraestrutura cinza)",
+          "financials.roi_climate_benefits (benefícios climáticos monetizados)",
+          "form.responsible (coordenador projeto)",
+          "photos[].geolocation (evidências área intervenção)"
+        ],
+        "external_inputs": [
+          "ART/RRT",
+          "Estudos climáticos locais",
+          "Licenças ambientais",
+          "Certidões regularidade",
+          "Resolução/autorização legislativa"
+        ]
+      },
+      "formatting_rules": {
+        "file_type": "PDF",
+        "font_min_size": 11,
+        "margins": "2cm",
+        "max_pages": null
+      },
+      "signature_requirements": [
+        "Gestor municipal/estadual",
+        "Secretário Meio Ambiente",
+        "Responsável técnico ART/RRT"
+      ],
+      "validation_checklist": [
+        "Demonstração clara benefícios climáticos (adaptação ou mitigação)",
+        "Georreferenciamento preciso (6 casas decimais)",
+        "Indicadores calculados conforme metodologia BNDES/MMA",
+        "SBN justificadas tecnicamente quando aplicáveis",
+        "Justiça climática observada (realocações com proteção social)",
+        "Orçamento detalhado com contrapartida especificada",
+        "Cronograma realista"
+      ],
+      "sources": [
+        "https://www.bndes.gov.br/wps/portal/site/home/financiamento/produto/fundo-clima"
+      ],
+      "last_verified_at": "2025-11-02"
+    }
+  ]
+}

@@ -1,6 +1,8 @@
 from dataclasses import dataclass, asdict
 from typing import List, Dict, Any
 import datetime as dt
+import hashlib
+import json
 
 from backend.storage import save_document
 
@@ -59,6 +61,7 @@ def generate_documents_for_fund(
     zone_id: int | None,
     form_data: Dict[str, Any],
     photos: List[Dict[str, Any]],
+    context: Dict[str, Any] | None = None,
 ):
     fund = next((f for f in FUNDS if f.code == fund_code), None)
     if not fund:
@@ -71,6 +74,8 @@ def generate_documents_for_fund(
         "form": form_data,
         "photos": photos,
     }
+    if context is not None:
+        base_payload["context"] = context
 
     for doc_type in fund.required_documents:
         title = f"{fund.name} - {doc_type}"
@@ -82,6 +87,8 @@ def generate_documents_for_fund(
             "type": doc_type,
             "path": path,
             "mime": "text/plain",
+            "prompt_version": "v1",
+            "inputs_hash": hashlib.sha256(json.dumps(base_payload, ensure_ascii=False, sort_keys=True).encode("utf-8")).hexdigest(),
         })
 
     return documents

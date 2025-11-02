@@ -1,0 +1,15 @@
+Fundo Estadual de Proteção (exemplo) - RelatorioFotografico
+
+Gerado em: 02/11/2025 10:43
+
+Contexto do Processo:
+
+- process_id: 4
+
+- zone_id: 23
+
+- form: {'responsavel': 'maria', 'data_vistoria': '1991-12-12', 'observacoes': 'teste', 'acao_imediata': 'teste'}
+
+- photos: [{'path': 'C:\\Users\\pc\\OneDrive\\Desktop\\INTELI\\climaseguro-platform\\storage\\images\\4\\0_Captura de tela 2025-08-12 164502.png', 'description': 'A imagem fornecida é uma "Matriz de Riscos do Projeto", que é uma ferramenta de gestão para identificar e avaliar ameaças em um projeto, classificando-as por probabilidade e impacto.\n\nA imagem **não contém moradias, estruturas físicas, paisagens ou qualquer elemento geográfico**. Consequentemente, não é possível realizar a análise solicitada quanto a:\n\n*   **Número de moradias visíveis:** Não há moradias na imagem.\n*   **Tipologia:** Não há moradias para classificar.\n*   **Estado aparente:** Não há moradias para avaliar o estado.\n*   **Indícios de risco (encosta/drenagem):** Não há elementos físicos ou geográficos para identificar tais riscos.\n*   **Referências geográficas:** Não há elementos geográficos na imagem.\n\nA análise deve se concentrar nos riscos do projeto detalhados na matriz, conforme o título da imagem.'}]
+
+- context: {'zone': {'id': 23, 'level': 'CRÍTICO', 'coordinates': {'lat': -25.4284, 'lon': -49.2733}}, 'demographics': {'total_imoveis': 47, 'populacao_estimada': 152}, 'financials': {'custo_prevencao_por_imovel': 15000, 'custo_reconstrucao_por_imovel': 180000, 'custo_prevencao_total': 705000, 'custo_desastre_total': 8460000, 'economia_estimada': 7755000, 'roi_percent': 1100}, 'notification': {'notified_at': '2025-11-02T10:30:00Z'}, 'photos': [{'path': 'C:\\Users\\pc\\OneDrive\\Desktop\\INTELI\\climaseguro-platform\\storage\\images\\4\\0_Captura de tela 2025-08-12 164502.png', 'description': 'A imagem fornecida é uma "Matriz de Riscos do Projeto", que é uma ferramenta de gestão para identificar e avaliar ameaças em um projeto, classificando-as por probabilidade e impacto.\n\nA imagem **não contém moradias, estruturas físicas, paisagens ou qualquer elemento geográfico**. Consequentemente, não é possível realizar a análise solicitada quanto a:\n\n*   **Número de moradias visíveis:** Não há moradias na imagem.\n*   **Tipologia:** Não há moradias para classificar.\n*   **Estado aparente:** Não há moradias para avaliar o estado.\n*   **Indícios de risco (encosta/drenagem):** Não há elementos físicos ou geográficos para identificar tais riscos.\n*   **Referências geográficas:** Não há elementos geográficos na imagem.\n\nA análise deve se concentrar nos riscos do projeto detalhados na matriz, conforme o título da imagem.'}], 'form': {'responsavel': 'maria', 'data_vistoria': '1991-12-12', 'observacoes': 'teste', 'acao_imediata': 'teste'}}

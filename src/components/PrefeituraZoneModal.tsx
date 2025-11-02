@@ -38,7 +38,20 @@ const PrefeituraZoneModal = ({ zone, open, onOpenChange }: PrefeituraZoneModalPr
   const roi = ((economiaEstimada / custoTotalPrevencao) * 100).toFixed(0);
 
   const handleIniciarProcesso = () => {
-    navigate(`/prefeitura/zona/${zone.zone_id}/wizard`);
+    const context = {
+      zone: { id: zone.zone_id, level: zone.level, coordinates: zone.coordinates },
+      demographics: { total_imoveis: zone.total_imoveis, populacao_estimada: zone.populacao_estimada },
+      financials: {
+        custo_prevencao_por_imovel: custoMedioPorImovel,
+        custo_reconstrucao_por_imovel: custoMedioReconstrucao,
+        custo_prevencao_total: custoTotalPrevencao,
+        custo_desastre_total: custoTotalDesastre,
+        economia_estimada: economiaEstimada,
+        roi_percent: Number(roi),
+      },
+      notification: { notified_at: zone.notified_at },
+    };
+    navigate(`/prefeitura/zona/${zone.zone_id}/wizard`, { state: { context } });
   };
 
   return (

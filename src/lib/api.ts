@@ -21,9 +21,10 @@ async function http<T>(path: string, init?: RequestInit): Promise<T> {
   return (await res.text()) as T;
 }
 
-export async function apiCreateProcess(zoneId?: number): Promise<{ processId: number }> {
+export async function apiCreateProcess(zoneId?: number, context?: unknown): Promise<{ processId: number }> {
   const body = new FormData();
   if (typeof zoneId === "number") body.append("zone_id", String(zoneId));
+  if (typeof context !== "undefined") body.append("context", JSON.stringify(context));
   return http("/processos/prevencao", { method: "POST", body });
 }
 

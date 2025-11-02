@@ -11,6 +11,7 @@ from backend.models import Base, PreventionProcess, ProcessPhoto, ProcessForm, G
 from backend.database import engine, SessionLocal
 from backend.services.gemini import describe_images_with_gemini
 from backend.services.doc_gen import generate_documents_for_fund, FundDefinition, list_funds
+from backend.services.context_builder import build_context
 
 
 app = FastAPI(title="ClimaSeguro Backend", version="0.1.0")
@@ -157,6 +158,8 @@ def generate_documents(process_id: int, fundo: str = Form(...)):
         if not form:
             raise HTTPException(status_code=400, detail="Formulário não encontrado para o processo")
 
+        context_consolidado = build_context(process_id)
+
         docs_payload = generate_documents_for_fund(
             fund_code=fundo,
             process_id=process_id,
@@ -168,6 +171,7 @@ def generate_documents(process_id: int, fundo: str = Form(...)):
                 "acao_imediata": form.immediate_action,
             },
             photos=[{"path": p.file_path, "description": p.description_ai or ""} for p in photos],
+            context=context_consolidado,
         )
 
         out_docs = []
@@ -179,6 +183,8 @@ def generate_documents(process_id: int, fundo: str = Form(...)):
                 file_path=doc["path"],
                 mime_type=doc["mime"],
                 size_bytes=os.path.getsize(doc["path"]) if os.path.exists(doc["path"]) else None,
+                prompt_version=doc.get("prompt_version"),
+                inputs_hash=doc.get("inputs_hash"),
             )
             db.add(gdoc)
             db.flush()

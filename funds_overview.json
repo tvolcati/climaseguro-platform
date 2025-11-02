@@ -1,0 +1,406 @@
+{
+  "funds": [
+    {
+      "fund_name": "Fundo Nacional sobre Mudança do Clima (FNMC) - Fundo Clima",
+      "alias": [
+        "Fundo Clima",
+        "FNMC"
+      ],
+      "jurisdiction": "federal",
+      "managing_agency": "MMA (não reembolsável) e BNDES (reembolsável)",
+      "legal_basis": [
+        "Lei 12.114/2009",
+        "Decreto 11.549/2023"
+      ],
+      "program_focus": [
+        "mitigação",
+        "adaptação",
+        "resiliência"
+      ],
+      "eligible_beneficiaries": [
+        "municípios",
+        "estados",
+        "consórcios"
+      ],
+      "eligible_projects": [
+        "Desenvolvimento urbano resiliente",
+        "SBN drenagem/contenção",
+        "Sistemas gestão riscos"
+      ],
+      "funding_modalities": [
+        "financiamento reembolsável",
+        "grant não reembolsável"
+      ],
+      "typical_ticket_range_brl": {
+        "min": 100000,
+        "max": null,
+        "notes": "Projetos 100k-5M+"
+      },
+      "cofinancing_requirements": "Contrapartida 5-20% porte município",
+      "submission_channel": {
+        "platform": "Portal BNDES ou Editais MMA",
+        "url": "https://www.bndes.gov.br/fundo-clima"
+      },
+      "required_documents": [
+        {
+          "doc_type": "Plano de Trabalho/Projeto Executivo",
+          "title_official": "Projeto Executivo",
+          "format": "PDF",
+          "template_url": null,
+          "content_requirements": [
+            "Descrição técnica",
+            "Georreferenciamento",
+            "Orçamento",
+            "Cronograma"
+          ],
+          "signatures": [
+            "Responsável técnico ART/RRT",
+            "Gestor municipal"
+          ],
+          "attachments_required": [
+            "Mapas",
+            "Fotos",
+            "Orçamento",
+            "ART"
+          ],
+          "file_constraints": {
+            "max_size_mb": null,
+            "max_pages": null,
+            "orientation": null
+          }
+        }
+      ],
+      "submission_steps": [
+        {
+          "step": 1,
+          "name": "Elaboração",
+          "who": "Município",
+          "details": "Projeto executivo",
+          "sla_days": null
+        },
+        {
+          "step": 2,
+          "name": "Submissão",
+          "who": "Proponente",
+          "details": "Portal BNDES/MMA",
+          "sla_days": null
+        },
+        {
+          "step": 3,
+          "name": "Análise",
+          "who": "BNDES/MMA",
+          "details": "Avaliação técnica",
+          "sla_days": 90
+        },
+        {
+          "step": 4,
+          "name": "Aprovação",
+          "who": "Comitê Gestor",
+          "details": "Autorização",
+          "sla_days": 60
+        },
+        {
+          "step": 5,
+          "name": "Contratação",
+          "who": "BNDES/MMA",
+          "details": "Liberação recursos",
+          "sla_days": 30
+        }
+      ],
+      "decision_timeline_days": {
+        "min": 90,
+        "max": 180
+      },
+      "monitoring_reporting": [
+        "Relatórios físico-financeiros",
+        "Prestação contas com impacto"
+      ],
+      "common_pitfalls": [
+        "Falta georreferenciamento",
+        "Orçamento mal dimensionado",
+        "Sem ART/RRT"
+      ],
+      "sources": [
+        "https://www.gov.br/mma/pt-br/noticias/fundo-clima-aprova-r-11-2-bilhoes-em-investimentos-para-2025"
+      ],
+      "last_verified_at": "2025-11-02"
+    },
+    {
+      "fund_name": "MDR/SEDEC - Transferências Obrigatórias Prevenção/Recuperação",
+      "alias": [
+        "MDR Prevenção",
+        "Lei 12.340/2010"
+      ],
+      "jurisdiction": "federal",
+      "managing_agency": "MDR/SEDEC",
+      "legal_basis": [
+        "Lei 12.340/2010",
+        "Portaria MDR 3.033/2020"
+      ],
+      "program_focus": [
+        "prevenção",
+        "resposta",
+        "recuperação"
+      ],
+      "eligible_beneficiaries": [
+        "municípios",
+        "estados"
+      ],
+      "eligible_projects": [
+        "Prevenção áreas risco",
+        "Contenção encostas",
+        "Drenagem",
+        "Reconstrução pós-desastre"
+      ],
+      "funding_modalities": [
+        "grant fundo a fundo"
+      ],
+      "typical_ticket_range_brl": {
+        "min": 50000,
+        "max": null,
+        "notes": "50k-5M+ conforme desastre"
+      },
+      "cofinancing_requirements": "Contrapartida 10-20% (prevenção)",
+      "submission_channel": {
+        "platform": "S2ID",
+        "url": "https://s2id.mi.gov.br/"
+      },
+      "required_documents": [
+        {
+          "doc_type": "Plano de Trabalho Prevenção/Recuperação",
+          "title_official": "Plano de Trabalho MDR",
+          "format": "PDF modelo oficial",
+          "template_url": "https://www.gov.br/mdr/pt-br/assuntos/protecao-e-defesa-civil/solicitacao-de-recursos-1",
+          "content_requirements": [
+            "Descrição ações com coordenadas",
+            "Orçamento BDI",
+            "Cronograma"
+          ],
+          "signatures": [
+            "Prefeito",
+            "Secretário Defesa Civil",
+            "Responsável técnico ART"
+          ],
+          "attachments_required": [
+            "Relatório diagnóstico risco",
+            "Laudos técnicos",
+            "Fotos georreferenciadas",
+            "Mapas risco",
+            "Ato criação defesa civil"
+          ],
+          "file_constraints": {
+            "max_size_mb": 50,
+            "max_pages": null,
+            "orientation": "PDF/A"
+          }
+        }
+      ],
+      "submission_steps": [
+        {
+          "step": 1,
+          "name": "Desastre ou Identificação Risco",
+          "who": "Município",
+          "details": "Evento ou mapeamento",
+          "sla_days": 0
+        },
+        {
+          "step": 2,
+          "name": "Decreto SE/ECP",
+          "who": "Prefeito",
+          "details": "Declaração oficial",
+          "sla_days": 0
+        },
+        {
+          "step": 3,
+          "name": "Registro S2ID",
+          "who": "Defesa Civil",
+          "details": "FIDE/DMATE preenchimento",
+          "sla_days": 5
+        },
+        {
+          "step": 4,
+          "name": "Plano de Trabalho",
+          "who": "Município",
+          "details": "Envio modelo MDR",
+          "sla_days": 30
+        },
+        {
+          "step": 5,
+          "name": "Análise SEDEC",
+          "who": "MDR/SEDEC",
+          "details": "Avaliação técnica",
+          "sla_days": 45
+        },
+        {
+          "step": 6,
+          "name": "Portaria",
+          "who": "MDR",
+          "details": "Publicação DOU",
+          "sla_days": 15
+        },
+        {
+          "step": 7,
+          "name": "Transferência",
+          "who": "MDR",
+          "details": "Fundo a fundo TED",
+          "sla_days": 10
+        },
+        {
+          "step": 8,
+          "name": "Execução",
+          "who": "Município",
+          "details": "Obras conforme plano",
+          "sla_days": null
+        },
+        {
+          "step": 9,
+          "name": "Prestação Contas",
+          "who": "Município",
+          "details": "Relatórios + notas fiscais S2ID",
+          "sla_days": 90
+        }
+      ],
+      "decision_timeline_days": {
+        "min": 30,
+        "max": 90
+      },
+      "monitoring_reporting": [
+        "Placa obra obrigatória",
+        "Relatórios S2ID",
+        "Fiscalização in loco"
+      ],
+      "common_pitfalls": [
+        "Plano fora prazo 30d",
+        "Sem coordenadas",
+        "Sem FIDE/DMATE",
+        "Município sem defesa civil criada"
+      ],
+      "sources": [
+        "https://www.gov.br/mdr/pt-br/assuntos/protecao-e-defesa-civil/solicitacao-de-recursos-1"
+      ],
+      "last_verified_at": "2025-11-02"
+    },
+    {
+      "fund_name": "BRDE/Banco Mundial - Sul Resiliente",
+      "alias": [
+        "Sul Resiliente"
+      ],
+      "jurisdiction": "internacional",
+      "managing_agency": "BRDE (intermediário) / Banco Mundial",
+      "legal_basis": [
+        "Contrato BIRD-BRDE mar/2020"
+      ],
+      "program_focus": [
+        "prevenção",
+        "adaptação",
+        "resiliência"
+      ],
+      "eligible_beneficiaries": [
+        "municípios PR/SC/RS"
+      ],
+      "eligible_projects": [
+        "Drenagem urbana",
+        "Contenção encostas",
+        "Proteção margens rios",
+        "Mapeamento risco",
+        "Sistemas alerta"
+      ],
+      "funding_modalities": [
+        "financiamento reembolsável"
+      ],
+      "typical_ticket_range_brl": {
+        "min": 500000,
+        "max": null,
+        "notes": "Total R$ 515M disponível"
+      },
+      "cofinancing_requirements": "Contrapartida 10-25%",
+      "submission_channel": {
+        "platform": "Agências BRDE",
+        "url": "https://www.brde.com.br/linha-financiamento/sul-resiliente/"
+      },
+      "required_documents": [
+        {
+          "doc_type": "Projeto Executivo Resiliência",
+          "title_official": "Projeto Investimento Resiliência Urbana",
+          "format": "Conforme BRDE + salvaguardas Banco Mundial",
+          "template_url": "Consultar agência BRDE",
+          "content_requirements": [
+            "Descrição técnica",
+            "Justificativa resiliência",
+            "Análise ambiental/social",
+            "Orçamento",
+            "Viabilidade"
+          ],
+          "signatures": [
+            "Prefeito",
+            "Secretário Planejamento",
+            "Responsável técnico"
+          ],
+          "attachments_required": [
+            "Licenças ambientais",
+            "ART",
+            "Plantas",
+            "Regularidade fiscal",
+            "Capacidade pagamento"
+          ],
+          "file_constraints": null
+        }
+      ],
+      "submission_steps": [
+        {
+          "step": 1,
+          "name": "Elaboração",
+          "who": "Município",
+          "details": "Projeto + salvaguardas",
+          "sla_days": null
+        },
+        {
+          "step": 2,
+          "name": "Submissão",
+          "who": "Município",
+          "details": "Agência BRDE",
+          "sla_days": null
+        },
+        {
+          "step": 3,
+          "name": "Análise",
+          "who": "BRDE",
+          "details": "Técnica + crédito",
+          "sla_days": 60
+        },
+        {
+          "step": 4,
+          "name": "Aprovação",
+          "who": "BRDE",
+          "details": "Comitê interno",
+          "sla_days": 30
+        },
+        {
+          "step": 5,
+          "name": "Contratação",
+          "who": "BRDE",
+          "details": "Liberação etapas",
+          "sla_days": 30
+        }
+      ],
+      "decision_timeline_days": {
+        "min": 60,
+        "max": 120
+      },
+      "monitoring_reporting": [
+        "Relatórios BRDE",
+        "Auditorias Banco Mundial",
+        "Indicadores desempenho"
+      ],
+      "common_pitfalls": [
+        "Não observar salvaguardas",
+        "Capacidade endividamento",
+        "Sem licenças ambientais"
+      ],
+      "sources": [
+        "https://www.brde.com.br/linha-financiamento/sul-resiliente/"
+      ],
+      "last_verified_at": "2025-11-02"
+    }
+  ]
+}
