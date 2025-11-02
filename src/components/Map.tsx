@@ -115,7 +115,7 @@ const Map: React.FC<MapProps> = ({ center, zones, onZoneClick }) => {
   }, [zones, onZoneClick]);
 
   return (
-    <div className="rounded-lg shadow-lg z-0" style={{ width: "100%", height: "600px" }}>
+    <div className="rounded-lg shadow-lg relative z-0" style={{ width: "100%", height: "600px" }}>
       <div ref={containerRef} className="w-full h-full rounded-lg" />
     </div>
   );
