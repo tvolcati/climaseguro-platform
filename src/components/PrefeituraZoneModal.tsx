@@ -5,6 +5,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { apiGenerateActionPlan } from "@/lib/api";
 import { Card } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 
@@ -171,8 +172,8 @@ const PrefeituraZoneModal = ({ zone, open, onOpenChange }: PrefeituraZoneModalPr
             <h3 className="text-lg font-semibold">💰 Memorial de Cálculo Financeiro</h3>
             
             {/* Custos de Prevenção */}
-            <Card className="p-4 border-blue-200 bg-blue-50">
-              <h4 className="font-semibold text-blue-900 mb-3">Custos de Prevenção</h4>
+          <Card className="p-4 border-blue-200 bg-blue-50">
+            <h4 className="font-semibold text-blue-900 mb-3">Custos de Prevenção</h4>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-blue-700">Custo médio por imóvel:</span>
@@ -191,8 +192,8 @@ const PrefeituraZoneModal = ({ zone, open, onOpenChange }: PrefeituraZoneModalPr
             </Card>
 
             {/* Custos de Desastre */}
-            <Card className="p-4 border-red-200 bg-red-50">
-              <h4 className="font-semibold text-red-900 mb-3">Custos Estimados de Desastre</h4>
+          <Card className="p-4 border-red-200 bg-red-50">
+            <h4 className="font-semibold text-red-900 mb-3">Custos Estimados de Desastre</h4>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-red-700">Custo médio reconstrução por imóvel:</span>
@@ -211,8 +212,8 @@ const PrefeituraZoneModal = ({ zone, open, onOpenChange }: PrefeituraZoneModalPr
             </Card>
 
             {/* Economia e ROI */}
-            <Card className="p-4 border-green-200 bg-green-50">
-              <h4 className="font-semibold text-green-900 mb-3">Retorno do Investimento</h4>
+          <Card className="p-4 border-green-200 bg-green-50">
+            <h4 className="font-semibold text-green-900 mb-3">Retorno do Investimento</h4>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-green-700">Economia estimada:</span>
@@ -232,7 +233,7 @@ const PrefeituraZoneModal = ({ zone, open, onOpenChange }: PrefeituraZoneModalPr
 
           {/* Metodologia */}
           <Card className="p-4 bg-muted/30">
-            <h4 className="font-semibold mb-2 text-sm">📋 Metodologia de Cálculo</h4>
+            <h4 className="font-semibold mb-2 text-sm">Metodologia de Cálculo</h4>
             <ul className="text-xs space-y-1 text-muted-foreground">
               <li>• Custos baseados em dados históricos da Defesa Civil</li>
               <li>• Valores incluem: obras de contenção, drenagem e relocação</li>
@@ -242,13 +243,37 @@ const PrefeituraZoneModal = ({ zone, open, onOpenChange }: PrefeituraZoneModalPr
           </Card>
 
           {/* Botão de Ação */}
-          <Button 
-            onClick={handleIniciarProcesso}
-            size="lg" 
-            className="w-full"
-          >
-            🚀 Iniciar Processo de Prevenção
-          </Button>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <Button 
+              onClick={handleIniciarProcesso}
+              size="lg" 
+              className="w-full"
+            >
+              Submissão para Fundos
+            </Button>
+            <Button 
+              variant="outline"
+              onClick={async () => {
+                const context = {
+                  zone: { id: zoneId, level: zoneLevel, coordinates: zone.coordinates },
+                  demographics: { total_imoveis: totalImoveis, populacao_estimada: populacaoEstimada },
+                  financials: {
+                    custo_prevencao_por_imovel: custoMedioPorImovel,
+                    custo_reconstrucao_por_imovel: custoMedioReconstrucao,
+                    custo_prevencao_total: custoTotalPrevencao,
+                    custo_desastre_total: custoTotalDesastre,
+                    economia_estimada: economiaEstimada,
+                    roi_percent: Number(roi),
+                  },
+                };
+                await apiGenerateActionPlan(context);
+              }}
+              size="lg"
+              className="w-full"
+            >
+              Gerar Plano de Ação com IA
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

@@ -23,7 +23,9 @@ async function http<T>(path: string, init?: RequestInit): Promise<T> {
 
 export async function apiCreateProcess(zoneId?: number, context?: unknown): Promise<{ processId: number }> {
   const body = new FormData();
-  if (typeof zoneId === "number") body.append("zone_id", String(zoneId));
+  if (typeof zoneId === "number" && Number.isFinite(zoneId)) {
+    body.append("zone_id", String(zoneId));
+  }
   if (typeof context !== "undefined") body.append("context", JSON.stringify(context));
   return http("/processos/prevencao", { method: "POST", body });
 }
@@ -56,6 +58,35 @@ export async function apiGenerateDocuments(processId: number, fundCode: string):
 export function getDocumentUrl(relativeUrl: string): string {
   // relativeUrl vem como "/documentos/{id}"
   return `${BASE_URL}${relativeUrl}`;
+}
+
+export async function apiPreflight(processId: number, fundCode: string): Promise<{ status: string; documents: { doc_type: string; status: string; missing: string[] }[] }> {
+  return http(`/processos/prevencao/${processId}/preflight`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ fund: fundCode }),
+  });
+}
+
+export async function apiGenerateActionPlan(context: unknown): Promise<void> {
+  const res = await fetch(`${BASE_URL}/acao/plano`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ context }),
+  });
+  if (!res.ok) {
+    const t = await res.text().catch(() => "");
+    throw new Error(`Falha ao gerar plano: ${res.status} ${t}`);
+  }
+  const blob = await res.blob();
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "plano_acao_municipal.pdf";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  window.URL.revokeObjectURL(url);
 }
 
 

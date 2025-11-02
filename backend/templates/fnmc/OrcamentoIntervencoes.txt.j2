@@ -1,0 +1,12 @@
+{{ fund_name }} - Orçamento de Intervenções
+
+Zona: {{ context.zone.id }}
+
+Resumo de Custos:
+- Custo Prevenção por Imóvel: R$ {{ context.financials.custo_prevencao_por_imovel | default('N/D') }}
+- Total Prevenção: R$ {{ context.financials.custo_prevencao_total | default('N/D') }}
+- Total Desastre (evitado): R$ {{ context.financials.custo_desastre_total | default('N/D') }}
+
+Observações:
+{{ context.form.observacoes or 'N/D' }}
+

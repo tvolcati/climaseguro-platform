@@ -1,0 +1,15 @@
+Fundo Nacional sobre Mudança do Clima - OrcamentoIntervencoes
+
+Gerado em: 02/11/2025 11:51
+
+Contexto do Processo:
+
+- process_id: 9
+
+- zone_id: None
+
+- form: {'responsavel': 'd', 'data_vistoria': '1991-12-12', 'observacoes': 's', 'acao_imediata': 's'}
+
+- photos: [{'path': 'C:\\Users\\pc\\OneDrive\\Desktop\\INTELI\\climaseguro-platform\\storage\\images\\9\\0_Captura de tela 2025-08-08 161341.png', 'description': 'A imagem fornecida exibe uma interface digital com uma tabela de tarefas e texto referente a um arquivo anexado. Não há elementos visuais que representem moradias, paisagens, encostas, sistemas de drenagem ou quaisquer referências geográficas.\n\nPortanto, não é possível realizar a análise solicitada (número de moradias, tipologia, estado aparente, indícios de risco ou referências geográficas) com base nesta imagem.'}]
+
+- context: {'zone': {'level': 'Muito Alto', 'coordinates': {'lat': -25.458759306883817, 'lon': -49.236857008435294}}, 'demographics': {'total_imoveis': 37, 'populacao_estimada': 68}, 'financials': {'custo_prevencao_por_imovel': 15000, 'custo_reconstrucao_por_imovel': 180000, 'custo_prevencao_total': 555000, 'custo_desastre_total': 6660000, 'economia_estimada': 6105000, 'roi_percent': 1100}, 'notification': {}, 'photos': [{'path': 'C:\\Users\\pc\\OneDrive\\Desktop\\INTELI\\climaseguro-platform\\storage\\images\\9\\0_Captura de tela 2025-08-08 161341.png', 'description': 'A imagem fornecida exibe uma interface digital com uma tabela de tarefas e texto referente a um arquivo anexado. Não há elementos visuais que representem moradias, paisagens, encostas, sistemas de drenagem ou quaisquer referências geográficas.\n\nPortanto, não é possível realizar a análise solicitada (número de moradias, tipologia, estado aparente, indícios de risco ou referências geográficas) com base nesta imagem.'}], 'form': {'responsavel': 'd', 'data_vistoria': '1991-12-12', 'observacoes': 's', 'acao_imediata': 's'}}

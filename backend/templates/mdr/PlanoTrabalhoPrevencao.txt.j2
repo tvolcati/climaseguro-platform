@@ -1,0 +1,19 @@
+MDR/SEDEC – Plano de Trabalho (Prevenção)
+
+Identificação do Ente:
+- Município: {{ context.zone.id or 'N/D' }}
+
+Descrição Detalhada das Ações:
+{{ context.form.observacoes or 'N/D' }}
+Coordenadas: {{ context.zone.coordinates.lat }}, {{ context.zone.coordinates.lon }}
+
+Análise de Ameaças e Vulnerabilidades (evidências):
+{% for p in context.photos %}- {{ p.description }}
+{% endfor %}
+
+Orçamento Detalhado:
+- Custo Prevenção Total: R$ {{ context.financials.custo_prevencao_total | default('N/D') }}
+
+Cronograma Físico-Financeiro: ver anexo.
+Metas Mensuráveis: população beneficiada {{ context.demographics.populacao_estimada | default('N/D') }}.
+

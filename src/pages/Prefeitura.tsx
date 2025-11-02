@@ -201,7 +201,7 @@ const Prefeitura = () => {
             onClick={() => window.location.href = '/'}
             className="gap-2"
           >
-            🚪 Sair
+            Sair
           </Button>
         </div>
       </header>
@@ -212,19 +212,19 @@ const Prefeitura = () => {
           {/* Stats Cards */}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <StatCard
-              icon="🔴"
+              icon=""
               label="Zonas Críticas"
               value={riskCalculation.isLoading ? "..." : riskCalculation.stats.veryHigh.toString()}
               color="bg-red-100 text-red-700 border-red-300"
             />
             <StatCard
-              icon="🟠"
+              icon=""
               label="Zonas Críticas"
               value={riskCalculation.isLoading ? "..." : (riskCalculation.stats.high - riskCalculation.stats.veryHigh).toString()}
               color="bg-orange-100 text-orange-700 border-orange-300"
             />
             <StatCard
-              icon="📊"
+              icon=""
               label="Total Monitoradas"
               value={riskCalculation.isLoading ? "..." : riskCalculation.stats.total.toString()}
               color="bg-blue-100 text-blue-700 border-blue-300"
@@ -234,13 +234,13 @@ const Prefeitura = () => {
           {/* Map */}
           <div className="rounded-lg border bg-card p-4 shadow-sm">
             <h2 className="mb-4 text-xl font-bold text-foreground">
-              🗺️ Mapa de Zonas de Risco
+              Mapa de Zonas de Risco
             </h2>
 
             {/* DEBUG INFO */}
             {process.env.NODE_ENV === 'development' && (
               <div className="mb-4 p-2 bg-yellow-100 border border-yellow-400 rounded text-xs">
-                <strong>🔍 DEBUG:</strong> isLoading={String(riskCalculation.isLoading)} | 
+                <strong>DEBUG:</strong> isLoading={String(riskCalculation.isLoading)} | 
                 useMockData={String(useMockData)} | 
                 zones={riskCalculation.zones?.length || 0} | 
                 mapZones={mapZones.length}
@@ -267,7 +267,7 @@ const Prefeitura = () => {
                     className="mt-4 bg-white hover:bg-gray-50"
                     onClick={handleSkipLoading}
                   >
-                    ⏭️ Pular e usar dados mockados
+                    Pular e usar dados mockados
                   </Button>
                 </div>
               </div>
@@ -329,7 +329,7 @@ const Prefeitura = () => {
           {mapZones.length > 0 && (
             <div>
               <h2 className="mb-4 text-xl font-bold text-foreground">
-                � Zonas Críticas
+                Zonas Críticas
               </h2>
 
               <div className="space-y-3">
@@ -348,9 +348,7 @@ const Prefeitura = () => {
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <span className="text-3xl">
-                            {zone.score >= 75 ? "🔴" : "🟠"}
-                          </span>
+                          <span className="h-3 w-3 rounded-full inline-block" style={{backgroundColor: zone.score >= 75 ? '#ef4444' : '#f97316'}}></span>
                           <div>
                             <p className="font-bold text-foreground">
                               Zona {zone.id} - {zone.level}
@@ -374,7 +372,6 @@ const Prefeitura = () => {
 
               {mapZones.filter(z => z.score >= 50).length === 0 && (
                 <div className="text-center py-8 text-muted-foreground">
-                  <div className="text-5xl mb-2">✅</div>
                   <p>Nenhuma zona crítica identificada</p>
                 </div>
               )}

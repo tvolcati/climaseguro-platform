@@ -1,6 +1,7 @@
 import os
 from io import BytesIO
 from typing import List
+import mimetypes
 
 from fastapi import UploadFile
 
@@ -44,7 +45,13 @@ def save_document(process_id: int, filename: str, content: bytes) -> str:
 
 def open_document_stream(path: str):
     filename = os.path.basename(path)
-    mime = "text/plain"
+    mime, _ = mimetypes.guess_type(path)
+    if not mime:
+        # heurística simples para PDF; senão, binário genérico
+        if path.lower().endswith(".pdf"):
+            mime = "application/pdf"
+        else:
+            mime = "application/octet-stream"
     stream = open(path, "rb")
     return stream, mime, filename
 

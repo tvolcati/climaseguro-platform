@@ -14,6 +14,10 @@ from backend.database import engine, SessionLocal
 from backend.services.gemini import describe_images_with_gemini, analyze_image_base64
 from backend.services.doc_gen import generate_documents_for_fund, FundDefinition, list_funds
 from backend.services.context_builder import build_context
+from backend.funds import loader as funds_loader
+from backend.services.preflight_checks import preflight_for_fund
+from backend.pdf_renderer import build_pdf_bytes
+from backend.services.doc_gen import compose_action_plan_text
 
 
 app = FastAPI(title="ClimaSeguro Backend", version="0.1.0")
@@ -35,6 +39,7 @@ def on_startup() -> None:
         Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
     init_storage()
+    funds_loader.init()
 
 
 def _load_context(process: PreventionProcess) -> dict:
@@ -143,6 +148,68 @@ def submit_form(process_id: int, responsavel: str = Form(...), data_vistoria: st
 @app.get("/fundos")
 def get_funds():
     return {"funds": [f.dict() for f in list_funds()]}
+
+
+@app.get("/fundos/overview")
+def get_funds_overview():
+    overview = funds_loader.get_overview()
+    if not overview:
+        return {"funds": []}
+    return overview.dict()
+
+
+@app.get("/fundos/templates")
+def get_document_templates_outline():
+    templates = funds_loader.get_templates()
+    if not templates:
+        return {"document_templates": []}
+    return templates.dict()
+
+
+class PreflightRequest(BaseModel):
+    fund: str
+
+
+@app.post("/processos/prevencao/{process_id}/preflight")
+def preflight(process_id: int, payload: PreflightRequest):
+    context = build_context(process_id)
+    return preflight_for_fund(payload.fund, context)
+
+
+class ActionPlanRequest(BaseModel):
+    context: dict
+
+
+@app.post("/acao/plano")
+def generate_action_plan(payload: ActionPlanRequest):
+    ctx = payload.context or {}
+    title = "Plano de Ação Municipal"
+    try:
+        from backend.services.gemini import generate_legal_document_text
+        sections = [
+            "Objetivo",
+            "Contexto e Diagnóstico",
+            "Diretrizes",
+            "Ações Imediatas (0–90 dias)",
+            "Ações Estruturantes (6–24 meses)",
+            "Orçamento de Referência",
+            "Governança e Responsabilidades",
+            "Indicadores de Monitoramento",
+            "Riscos e Mitigações",
+            "Conclusão",
+        ]
+        llm_text = generate_legal_document_text("Prefeitura Municipal", "PlanoAcaoMunicipal", ctx, sections)
+        final_text = llm_text or compose_action_plan_text(ctx)
+    except Exception as e:
+        print(f"[acao/plano] LLM indisponível, usando fallback: {e}")
+        final_text = compose_action_plan_text(ctx)
+
+    pdf_bytes = build_pdf_bytes(title, [final_text])
+    return StreamingResponse(
+        iter([pdf_bytes]),
+        media_type="application/pdf",
+        headers={"Content-Disposition": f"attachment; filename=plano_acao_municipal.pdf"}
+    )
 
 
 @app.post("/processos/prevencao/{process_id}/gerar-documentos")

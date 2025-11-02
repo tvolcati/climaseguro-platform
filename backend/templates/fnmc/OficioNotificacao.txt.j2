@@ -1,0 +1,14 @@
+{{ fund_name }} - Ofício de Notificação aos Moradores
+
+Prezados(as),
+
+Informamos que a área correspondente à Zona {{ context.zone.id }} foi avaliada em {{ context.form.data_vistoria }} com nível {{ context.zone.level }}.
+
+Resumo da Avaliação Técnica:
+{{ context.form.observacoes or 'N/D' }}
+
+Orientações Imediatas:
+{{ context.form.acao_imediata or 'N/D' }}
+
+Assina: {{ context.form.responsavel }}
+

@@ -1,0 +1,26 @@
+{{ fund_name }} - Relatório Técnico de Risco
+
+Zona: {{ context.zone.id }} ({{ context.zone.level }})
+Coordenadas: {{ context.zone.coordinates.lat }}, {{ context.zone.coordinates.lon }}
+
+Responsável: {{ context.form.responsavel }}
+Data da Vistoria: {{ context.form.data_vistoria }}
+
+Resumo Técnico:
+{{ context.form.observacoes or 'N/D' }}
+
+Ação Imediata Recomendada:
+{{ context.form.acao_imediata or 'N/D' }}
+
+Evidências Fotográficas (descrições IA):
+{% for p in context.photos %}- {{ p.description }}
+{% endfor %}
+
+Indicadores Financeiros:
+- Custo Prevenção Total: R$ {{ context.financials.custo_prevencao_total | default('N/D') }}
+- Custo Desastre Total: R$ {{ context.financials.custo_desastre_total | default('N/D') }}
+- Economia Estimada: R$ {{ context.financials.economia_estimada | default('N/D') }}
+- ROI: {{ context.financials.roi_percent | default('N/D') }}%
+
+Fontes e Metodologia: vide documentação interna do processo e anexos.
+

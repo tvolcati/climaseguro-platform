@@ -1,0 +1,15 @@
+Fundo Nacional sobre Mudança do Clima - RelatorioTecnicoRisco
+
+Gerado em: 02/11/2025 11:35
+
+Contexto do Processo:
+
+- process_id: 6
+
+- zone_id: None
+
+- form: {'responsavel': 'ana', 'data_vistoria': '1999-12-12', 'observacoes': 'ana ', 'acao_imediata': 'aana'}
+
+- photos: [{'path': 'C:\\Users\\pc\\OneDrive\\Desktop\\INTELI\\climaseguro-platform\\storage\\images\\6\\0_Captura de tela 2025-08-08 202029.png', 'description': 'A imagem fornecida é um documento de texto com uma ilustração do personagem Bob Esponja. Não há moradias, encostas, indícios de drenagem ou referências geográficas visíveis na imagem para serem analisados conforme solicitado.'}]
+
+- context: {'zone': {'level': 'Muito Alto', 'coordinates': {'lat': -25.415672001991577, 'lon': -49.25234343444193}}, 'demographics': {'total_imoveis': 43, 'populacao_estimada': 72}, 'financials': {'custo_prevencao_por_imovel': 15000, 'custo_reconstrucao_por_imovel': 180000, 'custo_prevencao_total': 645000, 'custo_desastre_total': 7740000, 'economia_estimada': 7095000, 'roi_percent': 1100}, 'notification': {}, 'photos': [{'path': 'C:\\Users\\pc\\OneDrive\\Desktop\\INTELI\\climaseguro-platform\\storage\\images\\6\\0_Captura de tela 2025-08-08 202029.png', 'description': 'A imagem fornecida é um documento de texto com uma ilustração do personagem Bob Esponja. Não há moradias, encostas, indícios de drenagem ou referências geográficas visíveis na imagem para serem analisados conforme solicitado.'}], 'form': {'responsavel': 'ana', 'data_vistoria': '1999-12-12', 'observacoes': 'ana ', 'acao_imediata': 'aana'}}

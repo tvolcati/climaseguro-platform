@@ -1,0 +1,17 @@
+{{ fund_name }} - Plano de Ação Emergencial
+
+Zona: {{ context.zone.id }} ({{ context.zone.level }})
+Data: {{ context.form.data_vistoria }}
+
+Medidas Imediatas Propostas:
+{{ context.form.acao_imediata or 'N/D' }}
+
+Evidências:
+{% for p in context.photos %}- {{ p.description }}
+{% endfor %}
+
+Recursos Necessários (estimativas):
+- Prevenção Total: R$ {{ context.financials.custo_prevencao_total | default('N/D') }}
+
+Cronograma Sintético: ver anexo.
+

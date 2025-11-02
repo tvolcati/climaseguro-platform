@@ -221,3 +221,78 @@ def extract_residence_count(text: str) -> int:
 
 
 
+
+def _pick_text_model() -> str:
+    """Seleciona dinamicamente um modelo de texto com generateContent."""
+    api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key:
+        raise RuntimeError("GEMINI_API_KEY ausente")
+    genai.configure(api_key=api_key)
+    try:
+        available = list(genai.list_models())
+        gc_models = [m for m in available if "generateContent" in getattr(m, "supported_generation_methods", [])]
+        def score(m):
+            name = getattr(m, "name", "").lower()
+            s = 0
+            if "2.5" in name or "2.0" in name or "1.5" in name:
+                s += 2
+            if "pro" in name:
+                s += 2
+            if "flash" in name:
+                s += 1
+            return s
+        best = sorted(gc_models, key=score, reverse=True)
+        if best:
+            return getattr(best[0], "name", "models/gemini-2.0-pro")
+    except Exception as e:
+        print(f"Falha ao listar modelos de texto: {e}")
+    return "models/gemini-2.0-pro"
+
+
+def generate_legal_document_text(fund_name: str, doc_type: str, context: dict, sections: List[str]) -> str:
+    """Gera texto longo, formal e jurídico em PT-BR para o documento solicitado.
+
+    O output NÃO deve conter JSON; apenas o texto final formatado em seções, com
+    títulos, parágrafos e linguagem administrativa.
+    """
+    api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key:
+        raise RuntimeError("GEMINI_API_KEY ausente")
+
+    model_name = _pick_text_model()
+    genai.configure(api_key=api_key)
+    model = genai.GenerativeModel(model_name)
+
+    context_hint = (
+        "Este é o contexto resumido do processo (NÃO reproduzir como JSON no resultado, use apenas como fonte de dados):\n"
+        + str(context)
+    )
+
+    estrutura = "\n".join([f"- {s}" for s in sections])
+    prompt = f"""
+Você é um redator jurídico da administração pública municipal. Gere um documento oficial em português do Brasil, com linguagem administrativa e técnica, sólido e bem fundamentado, para o fundo/programa: {fund_name}. Tipo de documento: {doc_type}.
+
+Requisitos de estilo e formato:
+- Texto corrido, organizado em seções com títulos claros.
+- Argumentação jurídica robusta, com motivação, finalidade pública, proporcionalidade e razoabilidade.
+- Fundamentação técnica (engenharia/defesa civil) quando cabível.
+- Evite listas em excesso; prefira parágrafos longos, porém legíveis.
+- NÃO inclua código, tabelas JSON ou dumps do contexto; NUNCA imprima chaves/valores.
+- Se informações não estiverem no contexto, declare a premissa de forma neutra sem inventar dados.
+
+Estrutura mínima obrigatória (siga esta ordem):
+{estrutura}
+
+Diretrizes adicionais:
+- Não cite nomes de pessoas reais; use apenas cargos e funções (ex.: responsável técnico).
+- Use números e unidades quando disponíveis (custos, coordenadas, população), sem expor dados pessoais.
+- Inclua uma conclusão com encaminhamentos e responsabilidades institucionais.
+
+{context_hint}
+
+Produza o documento completo agora. O resultado deve ser apenas o texto final com seções e parágrafos.
+"""
+
+    resp = model.generate_content(prompt)
+    return getattr(resp, "text", "")
+

@@ -1,0 +1,8 @@
+Fundo Estadual de Proteção - Relatório Fotográfico
+
+Zona: {{ context.zone.id }}
+
+Fotos e descrições:
+{% for p in context.photos %}- {{ p.description }}
+{% endfor %}
+

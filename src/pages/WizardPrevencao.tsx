@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
 import logoSvg from "@/assets/clima-seguro-logo.svg";
-import { apiCreateProcess, apiUploadPhotos, apiSubmitForm, apiListFunds, apiGenerateDocuments, getDocumentUrl } from "@/lib/api";
+import { apiCreateProcess, apiUploadPhotos, apiSubmitForm, apiListFunds, apiGenerateDocuments, getDocumentUrl, apiPreflight } from "@/lib/api";
 
 const WizardPrevencao = () => {
   const { zoneId } = useParams();
@@ -28,6 +28,7 @@ const WizardPrevencao = () => {
   const [selectedFund, setSelectedFund] = useState<string | null>(null);
   const [generatedDocs, setGeneratedDocs] = useState<{ id: number; name: string; type: string; url: string }[]>([]);
   const [loading, setLoading] = useState(false);
+  const [preflight, setPreflight] = useState<{ status: string; documents: { doc_type: string; status: string; missing: string[] }[] } | null>(null);
 
   const progress = (currentStep / 3) * 100;
 
@@ -51,7 +52,8 @@ const WizardPrevencao = () => {
         }
         setLoading(true);
         const initialContext = location?.state?.context;
-        const { processId: pid } = await apiCreateProcess(Number(zoneId), initialContext);
+        const parsedZoneId = Number.isFinite(Number(zoneId)) ? Number(zoneId) : undefined;
+        const { processId: pid } = await apiCreateProcess(parsedZoneId, initialContext);
         setProcessId(pid);
         let pidToUse = pid;
         let photosResp;
@@ -102,6 +104,20 @@ const WizardPrevencao = () => {
     }
   };
 
+  // Buscar preflight quando fundo selecionado mudar
+  useEffect(() => {
+    const run = async () => {
+      if (!processId || !selectedFund) return;
+      try {
+        const data = await apiPreflight(processId, selectedFund);
+        setPreflight(data);
+      } catch (e) {
+        setPreflight(null);
+      }
+    };
+    run();
+  }, [processId, selectedFund]);
+
   const handlePreviousStep = () => {
     setCurrentStep((prev) => prev - 1);
   };
@@ -139,7 +155,7 @@ const WizardPrevencao = () => {
             <img src={logoSvg} alt="ClimaSeguro" className="h-12 w-auto" />
             <div>
               <h1 className="text-xl font-bold text-foreground">
-                Processo de Prevenção - Zona {zoneId}
+                Processo de Prevenção - Zona {Number.isFinite(Number(zoneId)) ? zoneId : (location?.state?.context?.zone?.id ?? '—')}
               </h1>
               <p className="text-sm text-muted-foreground">
                 Etapa {currentStep} de 3
@@ -177,7 +193,7 @@ const WizardPrevencao = () => {
           {currentStep === 1 && (
             <div className="space-y-6">
               <div>
-                <h2 className="text-2xl font-bold mb-2">📸 Upload de Fotos</h2>
+                <h2 className="text-2xl font-bold mb-2">Upload de Fotos</h2>
                 <p className="text-muted-foreground">
                   Adicione fotos da área de risco para documentação técnica
                 </p>
@@ -202,7 +218,7 @@ const WizardPrevencao = () => {
                     {uploadedPhotos.map((photo, index) => (
                       <div key={index} className="relative group">
                         <div className="aspect-square rounded-lg bg-muted flex items-center justify-center border">
-                          <span className="text-4xl">📷</span>
+                          <span className="sr-only">foto</span>
                         </div>
                         <p className="text-xs mt-1 truncate">{photo.name}</p>
                         {photosAI[index]?.description && (
@@ -224,7 +240,7 @@ const WizardPrevencao = () => {
 
               <div className="flex justify-end">
                 <Button onClick={handleNextStep} size="lg" disabled={loading}>
-                  Próximo →
+                  Próximo
                 </Button>
               </div>
             </div>
@@ -234,7 +250,7 @@ const WizardPrevencao = () => {
           {currentStep === 2 && (
             <div className="space-y-6">
               <div>
-                <h2 className="text-2xl font-bold mb-2">📝 Informações da Vistoria</h2>
+                <h2 className="text-2xl font-bold mb-2">Informações da Vistoria</h2>
                 <p className="text-muted-foreground">
                   Preencha os dados técnicos da vistoria realizada
                 </p>
@@ -307,7 +323,7 @@ const WizardPrevencao = () => {
                   ← Voltar
                 </Button>
                 <Button onClick={handleNextStep} size="lg" disabled={loading}>
-                  Gerar Documentos →
+                  Gerar Documentos
                 </Button>
               </div>
             </div>
@@ -317,38 +333,51 @@ const WizardPrevencao = () => {
           {currentStep === 3 && (
             <div className="space-y-6">
               <div>
-                <h2 className="text-2xl font-bold mb-2">✅ Validar Documentos</h2>
+                <h2 className="text-2xl font-bold mb-2">Validar Documentos</h2>
                 <p className="text-muted-foreground">
                   Revise os documentos gerados antes de finalizar o processo
                 </p>
               </div>
 
               <div className="space-y-4">
-                <div>
-                  <p className="font-medium mb-2">Selecione o fundo para submissão:</p>
-                  <div className="flex flex-wrap gap-2">
+                <div className="space-y-3">
+                  <p className="font-medium">Selecione o fundo para submissão:</p>
+                  <div className="grid grid-cols-1 gap-3">
                     {funds.map((f) => (
-                      <Button
-                        key={f.code}
-                        variant={selectedFund === f.code ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => setSelectedFund(f.code)}
-                      >
-                        {f.name}
-                      </Button>
+                      <Card key={f.code} className={`p-4 cursor-pointer ${selectedFund === f.code ? 'ring-2 ring-primary' : ''}`} onClick={() => setSelectedFund(f.code)}>
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="font-medium">{f.name}</p>
+                            <p className="text-xs text-muted-foreground">Documentos: {f.required_documents.join(', ')}</p>
+                          </div>
+                          <Button variant={selectedFund === f.code ? 'default' : 'outline'} size="sm">Selecionar</Button>
+                        </div>
+                      </Card>
                     ))}
                   </div>
                 </div>
 
                 {/* Documentos exigidos pelo fundo selecionado */}
                 {selectedFund && (
-                  <div className="text-sm text-muted-foreground">
-                    <p className="font-medium text-foreground mb-1">Documentos exigidos:</p>
-                    <ul className="list-disc ml-5">
-                      {funds.find((f) => f.code === selectedFund)?.required_documents.map((d) => (
-                        <li key={d}>{d}</li>
+                  <div className="text-sm">
+                    <p className="font-medium mb-2">Requisitos por documento</p>
+                    <div className="space-y-2">
+                      {(preflight?.documents || []).map((d) => (
+                        <Card key={d.doc_type} className="p-3">
+                          <div className="flex items-center justify-between">
+                            <span className="font-medium">{d.doc_type}</span>
+                            <span className={`text-xs px-2 py-1 rounded ${d.status === 'ok' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                              {d.status === 'ok' ? 'OK' : 'Pendências'}
+                            </span>
+                          </div>
+                          {d.missing.length > 0 && (
+                            <ul className="list-disc ml-5 mt-1 text-xs text-muted-foreground">
+                              {d.missing.map((m) => (<li key={m}>{m}</li>))}
+                            </ul>
+                          )}
+                        </Card>
                       ))}
-                    </ul>
+                    </div>
                   </div>
                 )}
 
@@ -365,7 +394,7 @@ const WizardPrevencao = () => {
                       <Card key={doc.id} className="p-4 hover:shadow-md transition-shadow">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
-                            <span className="text-2xl">📄</span>
+                            <span className="sr-only">documento</span>
                             <div>
                               <p className="font-medium">{doc.name}</p>
                               <p className="text-xs text-muted-foreground">Zona {zoneId} - {new Date().toLocaleDateString('pt-BR')}</p>
@@ -393,7 +422,7 @@ const WizardPrevencao = () => {
                   ← Voltar
                 </Button>
                 <Button onClick={handleFinish} size="lg" className="bg-green-600 hover:bg-green-700" disabled={generatedDocs.length === 0}>
-                  ✓ Validar e Finalizar
+                  Validar e Finalizar
                 </Button>
               </div>
             </div>
