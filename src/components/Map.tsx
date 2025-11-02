@@ -1,102 +1,77 @@
-import React from "react";
+import { useEffect } from "react";
+import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+
+// Fix ícones Leaflet
+const initLeaflet = () => {
+  // @ts-ignore
+  delete L.Icon.Default.prototype._getIconUrl;
+  L.Icon.Default.mergeOptions({
+    iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+    iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+    shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+  });
+};
+
+// Criar ícones customizados
+const createIcon = (score: number, id: number) => {
+  const color = score >= 70 ? "#ef4444" : score >= 50 ? "#f97316" : score >= 30 ? "#eab308" : "#22c55e";
+  const textColor = score >= 30 && score < 50 ? "#1f2937" : "#ffffff";
+  
+  return L.divIcon({
+    html: `<div style="display:flex;align-items:center;justify-content:center;width:40px;height:40px;background:${color};color:${textColor};border-radius:50%;font-weight:bold;box-shadow:0 4px 6px rgba(0,0,0,0.2);border:2px solid white;">${id}</div>`,
+    className: "",
+    iconSize: [40, 40],
+    iconAnchor: [20, 40],
+  });
+};
+
+interface RiskZone {
+  id: number;
+  coordinates: { lat: number; lon: number };
+  score: number;
+  level: string;
+  total_imoveis?: number;
+  populacao_estimada?: number;
+}
 
 interface MapProps {
   center: [number, number];
-  zones: Array<{
-    id: number;
-    coordinates: { lat: number; lon: number };
-    score: number;
-    level: string;
-    total_imoveis?: number;
-    populacao_estimada?: number;
-  }>;
-  onZoneClick?: (zone: any) => void;
+  zones: RiskZone[];
+  onZoneClick?: (zone: RiskZone) => void;
 }
 
-// Componente de placeholder para o mapa
+function ChangeView({ center }: { center: [number, number] }) {
+  const map = useMap();
+  useEffect(() => {
+    map.setView(center, 13);
+  }, [center, map]);
+  return null;
+}
+
 const Map = ({ center, zones, onZoneClick }: MapProps) => {
-  const getRiskColor = (score: number) => {
-    if (score >= 70) return "bg-red-500";
-    if (score >= 50) return "bg-orange-500";
-    if (score >= 30) return "bg-yellow-500";
-    return "bg-green-500";
-  };
+  useEffect(() => {
+    initLeaflet();
+  }, []);
 
   return (
-    <div 
-      className="relative rounded-lg border bg-gradient-to-br from-blue-50 to-green-50 shadow-lg overflow-hidden"
-      style={{ width: "100%", height: "600px" }}
-    >
-      {/* Header do mapa */}
-      <div className="absolute top-4 left-4 z-10 bg-white/90 backdrop-blur-sm rounded-lg p-3 shadow-md">
-        <h4 className="font-bold text-sm text-gray-800">Mapa Interativo</h4>
-        <p className="text-xs text-gray-600">
-          {center[0].toFixed(4)}, {center[1].toFixed(4)}
-        </p>
-      </div>
-
-      {/* Simular zonas de risco como pontos no mapa */}
-      <div className="absolute inset-0 flex items-center justify-center">
-        <div className="relative w-full h-full bg-gradient-to-b from-blue-200/30 to-green-200/30">
-          
-          {/* Simulação das zonas como markers */}
-          {zones.map((zone, index) => (
-            <div
-              key={zone.id}
-              className={`absolute cursor-pointer transform -translate-x-1/2 -translate-y-1/2 transition-all hover:scale-110`}
-              style={{
-                left: `${50 + (index % 3 - 1) * 15}%`,
-                top: `${40 + Math.floor(index / 3) * 20}%`,
-              }}
-              onClick={() => onZoneClick?.(zone)}
-            >
-              <div className={`flex items-center justify-center w-12 h-12 rounded-full ${getRiskColor(zone.score)} text-white font-bold shadow-lg border-2 border-white text-sm`}>
-                {zone.id}
-              </div>
-              
-              {/* Tooltip ao hover */}
-              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 opacity-0 hover:opacity-100 transition-opacity bg-black text-white text-xs rounded px-2 py-1 whitespace-nowrap">
-                Zona {zone.id} - {zone.level}
-                <br />
-                Score: {zone.score}/100
-              </div>
+    <MapContainer center={center} zoom={13} style={{ width: "100%", height: "600px" }} className="rounded-lg shadow-lg z-0">
+      <ChangeView center={center} />
+      <TileLayer url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}" attribution="&copy; Esri" />
+      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution="&copy; OpenStreetMap" opacity={0.5} />
+      {zones.map((zone) => (
+        <Marker key={zone.id} position={[zone.coordinates.lat, zone.coordinates.lon]} icon={createIcon(zone.score, zone.id)} eventHandlers={{ click: () => onZoneClick?.(zone) }}>
+          <Popup>
+            <div className="text-center">
+              <p className="font-bold">Zona {zone.id}</p>
+              <p className="text-sm">{zone.level}</p>
+              <p className="text-xs">Score: {zone.score}/100</p>
             </div>
-          ))}
-
-          {/* Indicador de mapa interativo */}
-          <div className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm rounded-lg p-2 shadow-md">
-            <div className="text-xs text-gray-600">
-              🗺️ Mapa Simplificado
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Overlay informativo */}
-      <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg p-3 shadow-md max-w-xs">
-        <p className="text-xs text-gray-700 mb-2">
-          <strong>Clique nas zonas</strong> para ver detalhes
-        </p>
-        <div className="flex gap-2 text-xs">
-          <span className="flex items-center gap-1">
-            <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-            Crítico
-          </span>
-          <span className="flex items-center gap-1">
-            <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-            Alto
-          </span>
-          <span className="flex items-center gap-1">
-            <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-            Moderado
-          </span>
-          <span className="flex items-center gap-1">
-            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-            Baixo
-          </span>
-        </div>
-      </div>
-    </div>
+          </Popup>
+        </Marker>
+      ))}
+    </MapContainer>
   );
 };
 

@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/select";
 import logoSvg from "@/assets/clima-seguro-logo.svg";
 import Map from "@/components/Map";
+import ZoneDetailModal from "@/components/ZoneDetailModal";
 
 // Mock data - substituir pelos dados reais depois
 const cities = [
@@ -55,6 +56,8 @@ const mockZones = [
 
 const ClimaSeguro = () => {
   const [selectedCity, setSelectedCity] = useState<string>("");
+  const [selectedZone, setSelectedZone] = useState<any>(null);
+  const [modalOpen, setModalOpen] = useState(false);
   
   const getCityCoordinates = (): [number, number] => {
     const city = cities.find(c => c.code === selectedCity);
@@ -62,8 +65,8 @@ const ClimaSeguro = () => {
   };
 
   const handleZoneClick = (zone: any) => {
-    console.log("Zona clicada:", zone);
-    // TODO: Abrir modal com detalhes da zona
+    setSelectedZone(zone);
+    setModalOpen(true);
   };
 
   return (
@@ -170,6 +173,13 @@ const ClimaSeguro = () => {
           </div>
         )}
       </main>
+
+      {/* Modal de Detalhes da Zona */}
+      <ZoneDetailModal 
+        zone={selectedZone}
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+      />
     </div>
   );
 };
