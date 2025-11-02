@@ -1,0 +1,141 @@
+/* Estilos customizados para o componente Map otimizado */
+
+/* Popups customizados */
+.custom-popup .leaflet-popup-content-wrapper {
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+.custom-popup .leaflet-popup-content {
+  margin: 12px !important;
+  line-height: 1.4 !important;
+}
+
+.custom-popup .leaflet-popup-tip {
+  background: white !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+.custom-popup .leaflet-popup-close-button {
+  color: #6b7280 !important;
+  font-size: 18px !important;
+  padding: 4px 8px !important;
+}
+
+.custom-popup .leaflet-popup-close-button:hover {
+  color: #374151 !important;
+  background: rgba(0, 0, 0, 0.05) !important;
+  border-radius: 4px !important;
+}
+
+/* Controles do mapa */
+.leaflet-control-custom {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-radius: 6px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+  font-family: system-ui, -apple-system, sans-serif !important;
+}
+
+/* Zoom controls */
+.leaflet-control-zoom {
+  border-radius: 6px !important;
+  overflow: hidden !important;
+}
+
+.leaflet-control-zoom a {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border: none !important;
+  color: #374151 !important;
+  font-weight: 500 !important;
+}
+
+.leaflet-control-zoom a:hover {
+  background: rgba(59, 130, 246, 0.1) !important;
+  color: #2563eb !important;
+}
+
+/* Marcadores com hover effect melhorado */
+.leaflet-marker-icon {
+  transition: all 0.2s ease !important;
+}
+
+.leaflet-marker-icon:hover {
+  z-index: 1000 !important;
+}
+
+/* Loading spinner customizado */
+@keyframes mapSpinner {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.map-loading-spinner {
+  animation: mapSpinner 1s linear infinite;
+}
+
+/* Responsividade para telas menores */
+@media (max-width: 768px) {
+  .custom-popup .leaflet-popup-content-wrapper {
+    max-width: 250px !important;
+  }
+  
+  .leaflet-control-custom {
+    font-size: 11px !important;
+    padding: 6px !important;
+  }
+}
+
+/* Melhoria na legenda do mapa */
+.map-legend {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 6px;
+  padding: 10px;
+  font-size: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.map-legend-title {
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #1f2937;
+}
+
+.map-legend-item {
+  margin: 3px 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.map-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+/* Counter de zonas */
+.zone-counter {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 6px;
+  padding: 8px 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+/* Performance: reduzir animações em dispositivos lentos */
+@media (prefers-reduced-motion: reduce) {
+  .leaflet-marker-icon,
+  .leaflet-control-zoom a {
+    transition: none !important;
+  }
+  
+  .map-loading-spinner {
+    animation: none !important;
+  }
+}
