@@ -1,15 +1,17 @@
 import os
 import json
+import base64
 from typing import List, Optional
 
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
+from pydantic import BaseModel
 
 from backend.storage import init_storage, save_upload_files, open_document_stream
 from backend.models import Base, PreventionProcess, ProcessPhoto, ProcessForm, GeneratedDocument
 from backend.database import engine, SessionLocal
-from backend.services.gemini import describe_images_with_gemini
+from backend.services.gemini import describe_images_with_gemini, analyze_image_base64
 from backend.services.doc_gen import generate_documents_for_fund, FundDefinition, list_funds
 
 
@@ -212,5 +214,38 @@ def get_document(document_id: int):
 @app.get("/")
 def health():
     return {"status": "ok"}
+
+
+# ===== ANÁLISE AUTOMÁTICA DE SATÉLITE =====
+
+class SatelliteAnalysisRequest(BaseModel):
+    image_base64: str
+    zone_id: int
+    coordinates: dict
+
+
+@app.post("/api/gemini/analyze-residence")
+async def analyze_residence_from_satellite(request: SatelliteAnalysisRequest):
+    """
+    Endpoint para análise automática de residências a partir de imagem de satélite.
+    Recebe imagem em base64 e retorna contagem de residências via Gemini.
+    """
+    try:
+        # Decodificar base64
+        image_data = base64.b64decode(request.image_base64)
+        
+        # Chamar Gemini para análise
+        result = await analyze_image_base64(image_data, request.coordinates)
+        
+        return {
+            "zone_id": request.zone_id,
+            "residence_count": result["residence_count"],
+            "description": result["description"],
+            "confidence": result["confidence"],
+            "coordinates": request.coordinates
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro na análise: {str(e)}")
+
 
 
