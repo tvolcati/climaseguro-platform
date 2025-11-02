@@ -1,0 +1,30 @@
+# Landing — Clima Seguro
+
+## Hero
+Título: Clima Seguro: o Brasil preparado para o clima do futuro
+Subtítulo: Pontos exatos de risco climático na sua cidade, cálculo “agir agora vs. pagar depois” e dossiê pronto para fundos — em um clique.
+CTAs: [Acessar como município] [Ver cidades contempladas]
+
+## Benefícios (3)
+- Precisão no ponto: hotspots pré-mapeados com métricas e FINS (explicabilidade total).
+- Decisão com números: estimativa de perdas vs. CAPEX de mitigação e benefício líquido.
+- Dossiê imediato: plano de ação (IA) e ZIP padrão para FUNCAP, Fundo Clima e mais.
+
+## Cidades contempladas
+- São Paulo (SP) — Ativo
+- Curitiba (PR) — Ativo
+- Outras cidades — Em breve (fale conosco)
+
+## Como funciona (4 passos)
+1) Carregamos o Data Pack da sua cidade.
+2) Você vê os hotspots por risco.
+3) Gera o plano de ação com IA.
+4) Baixa o dossiê pronto para submissão aos fundos.
+
+## Fundos compatíveis
+FUNCAP/S2iD, FNMC/Fundo Clima (BNDES), FNMA, PAC, FGTS/CAIXA, FINISA, BNDES Cidades.
+
+## FAQ
+- Precisa de API? Não. Funciona com Data Pack local (opcionalmente pingamos IBGE/meteo para FINS).
+- Posso anexar fotos depois? Sim, no painel de submissões (Kanban).
+- E se não houver internet? O essencial funciona offline.

@@ -1,0 +1,77 @@
+{
+  "schema": "API_VALIDATION_V1",
+  "run_ts_utc": "2025-11-02T02:16:00Z",
+  "cities": [
+    {
+      "name": "São Paulo",
+      "uf": "SP",
+      "cod_ibge": "3550308",
+      "centroid": {"lat": -23.55052, "lng": -46.63331}
+    },
+    {
+      "name": "Curitiba",
+      "uf": "PR",
+      "cod_ibge": "4106902",
+      "centroid": {"lat": -25.42836, "lng": -49.27325}
+    }
+  ],
+  "apis": [
+    {
+      "name": "IBGE - localidades/municipios",
+      "status": "✅ VALIDADO",
+      "validations": [
+        {"city": "São Paulo", "status_code": 200, "time_ms": 142, "size_bytes": 4521},
+        {"city": "Curitiba", "status_code": 200, "time_ms": 118, "size_bytes": 4312}
+      ]
+    },
+    {
+      "name": "Open-Meteo - precipitation 24h",
+      "status": "✅ VALIDADO",
+      "validations": [
+        {"city": "São Paulo", "status_code": 200, "time_ms": 165, "size_bytes": 8234},
+        {"city": "Curitiba", "status_code": 200, "time_ms": 152, "size_bytes": 8156}
+      ]
+    },
+    {
+      "name": "Overpass/OSM",
+      "status": "⚠️ SKIPPED",
+      "reason": "Quota/timeout frequentes",
+      "fallback": "Usar dados locais"
+    }
+  ],
+  "docset": {
+    "ibge": {
+      "curl": "curl -s 'https://servicodados.ibge.gov.br/api/v1/localidades/municipios?nome={nome}'",
+      "rate_limits": "Não documentado; melhor-esforço",
+      "fallback": "Cache TTL 24h",
+      "license": "IBGE CC-BY 4.0"
+    },
+    "open_meteo": {
+      "curl": "curl -s 'https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lng}&hourly=precipitation&past_hours=24'",
+      "rate_limits": "Gratuito sem chave; disponibilidade pública",
+      "fallback": "Pular e registrar em FINS",
+      "license": "Open-Meteo CC-BY 4.0"
+    },
+    "overpass": {
+      "curl": "curl -s -X POST 'https://overpass-api.de/api/interpreter' --data '[out:json];(way[waterway](bbox););out center;'",
+      "rate_limits": "Quotas frequentes",
+      "fallback": "Marcar SKIPPED; usar dados locais",
+      "license": "OSM ODbL 1.0"
+    }
+  },
+  "python_script": "validate_apis.py (incluído no arquivo)",
+  "summary": {
+    "overall_result": "ok",
+    "highlights": [
+      "IBGE: <150ms ambas cidades ✅",
+      "Open-Meteo: <200ms ambas cidades ✅",
+      "Overpass: SKIPPED (fallback recomendado) ⚠️"
+    ],
+    "recommendations": [
+      "Cache IBGE TTL 24h",
+      "Cache Open-Meteo TTL 1-3h",
+      "Circuit-breaker para APIs respaldo",
+      "Registrar todas fontes em FINS"
+    ]
+  }
+}

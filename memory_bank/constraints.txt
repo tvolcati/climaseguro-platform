@@ -1,0 +1,50 @@
+# Constraints — v0 (Hackathon)
+
+## Ambiente/Infra
+- Monólito Next.js (frontend + API) — sem microserviços.
+- Banco: Postgres (Neon) — latência de rede tolerada (≤ 150 ms).
+- Sem dependência de PostGIS no v0 (cluster em memória no import).
+
+## Chaves/Segredos
+- OPENAI_API_KEY (obrigatória para Plano de Ação; fallback disponível).
+- DATABASE_URL (Neon).
+- Sem chaves obrigatórias para IBGE/Open-Meteo (apenas “pings” de respaldo).
+
+## Rede/Disponibilidade
+- Produto roda 100% com Data Packs locais (offline-ready).
+- “Pings” IBGE/Open-Meteo são opcionais; se falhar, registrar em FINS e seguir.
+- Cache recomendado: IBGE TTL 24h; Open-Meteo TTL 1–3h.
+
+## Performance
+- Landing e Mapa devem TTFB < 500 ms; interação < 100 ms após fetch.
+- Drawer abre em ≤ 200 ms com skeleton; dados detalhados em ≤ 1 s (mock).
+- “Gerar Dossiê (ZIP)” em ≤ 15–45 s (com IA); ≤ 10–15 s (sem IA – fallback).
+
+## UX/A11y
+- Contraste AA; foco visível; navegação por teclado.
+- Drawer full em mobile; responsivo em todas as telas.
+
+## Segurança
+- JWT simples (ADMIN/PREFEITURA; city_slug).
+- Rate-limit leve em /api/plan e /api/docfactory (ex.: 5 req/min/tenant).
+- Logs sem PII (somente agregados/popExposed).
+
+## Dados & Privacidade
+- Sem dados pessoais de cidadãos; somente agregados espaciais.
+- FINS guarda fontes/assunções e datasetVersion (auditoria).
+
+## Escopo v0 (não fazer)
+- Zero integração com portais oficiais (S2iD/BNDES).
+- Sem upload de shapefiles externos (só Data Packs internos).
+- Sem previsão hiperlocal em tempo real (apenas cálculo determinístico por Data Pack).
+
+## Riscos conhecidos (e mitigação)
+- Falha da IA → usar template fallback p/ Plano e Dossiê.
+- Overpass indisponível → marcar SKIPPED; usar dados locais.
+- Data Pack inconsistente → import valida schema e aborta com relatório.
+
+## Suporte Navegadores
+- Últimas versões Chrome/Edge/Firefox; Safari 2 últimas major. Mobile iOS/Android últimos 2 anos.
+
+## Auditoria
+- Toda alteração relevante (status, submissão, fundos) deve gerar AuditLog.

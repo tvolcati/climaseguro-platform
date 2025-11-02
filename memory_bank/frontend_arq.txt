@@ -1,0 +1,103 @@
+TÍTULO
+Arquitetura de Frontend — Clima Seguro (com Landing)
+
+STACK
+Next.js 14 (App Router), React 18, TS, Tailwind, shadcn/ui, MapLibre/Leaflet, TanStack Query, Zustand, Zod, dayjs, lucide-react. Fonte: Open Sans.
+
+ROTAS
+/                       -> Landing Page “pika” (marketing)
+/(auth)/login           -> Login (mock / role select)
+/(app)/mapa             -> Admin: Brasil; Prefeitura: mapa da cidade
+/app/hotspot/[id]       -> Drawer lateral 5 abas
+/app/submissoes         -> Kanban de dossiês
+/app/admin              -> CRUD Fundos (ADMIN)
+
+LANDING PAGE “/”
+Seções:
+1) Header: logo (/public/brand/clima.seguro.svg), nav: Produto, Cidades, Como funciona, Entrar
+2) Hero: slogan + subtítulo + CTAs:
+   - “Acessar como município” -> /auth/login
+   - “Ver cidades contempladas” -> ancora #cidades
+   - selo “Data Packs locais, IA explicável (FINS)”
+3) Prova visual: mock do mapa com hotspots piscando (imagem/placeholder)
+4) Benefícios (3 cards): 
+   - Precisão no ponto (mapa + FINS)
+   - Cálculo “agora vs depois”
+   - Dossiê pronto para fundos
+5) Cidades contempladas (#cidades): grid com chips (São Paulo, Curitiba) + “Sua cidade” (CTA -> /auth/login)
+6) Como funciona: 4 passos (Carregar Data Pack → Ver hotspots → Gerar plano → Submeter)
+7) Fundos compatíveis: logos/nomes (FUNCAP, FNMC, FNMA, PAC, FGTS, FINISA, BNDES)
+8) FAQ curto (3–5 itens)
+9) Footer: contato (mailto), termos, versão
+
+COMPONENTES DA LANDING
+- <HeaderNav> (logo + nav)
+- <Hero> (slogan, CTAs)
+- <CitiesGrid> (chips: São Paulo, Curitiba; estado “Em breve” para outras)
+- <HowItWorksSteps>
+- <FundsStrip>
+- <FAQAccordion>
+- <Footer>
+
+AUTORIZAÇÃO & CONTEXTO
+- Login define role (ADMIN/PREFEITURA) e city_slug para Prefeitura.
+- Admin vê BR + /admin; Prefeitura vê somente /app/mapa com boundary da sua city.
+
+MAPA & APP
+/app/mapa:
+- Admin: mapa BR -> cidades do programa coloridas (SP, Curitiba) e cinza para demais; tooltip com nome.
+- Prefeitura: recorte do boundary; filtros de risco (FLOOD/LANDSLIDE/HEAT/ALL); marcadores (top-5 piscando).
+- Clique no marcador -> /app/hotspot/[id]
+
+/app/hotspot/[id] (Drawer 45vw; full em < md):
+Tabs (5):
+1) Por que aqui? (metrics + mini-mapa + legenda)
+2) Sem intervenção (EL_no: valor per capita)
+3) Pacote recomendado (itens, CAPEX, EL_com, BN)
+4) FINS (accordion JSON friendly, datasetVersion, pings)
+5) Financiar (lista Fundos; “Gerar Plano de Ação” / “Gerar Dossiê (ZIP)”)
+
+SUBMISSÕES
+/app/submissoes: Kanban (rascunho/gerado/submetido/aprovado), dialog para anexos e checklist.
+
+ADMIN FUNDOS
+/app/admin: CRUD Fundos (nome, type, pipeline steps, checklist items)
+
+ESTADO GLOBAL (Zustand)
+auth: { user, role, city_slug }
+ui:   { selectedRisk, drawerOpen }
+cache:{ hotspotsByRisk }
+
+CONTRATOS FE→API (resumo)
+GET /api/cities -> {data:[{id,name,slug}]}
+GET /api/cities/:slug -> {data:{id,name,slug,boundary?}}
+POST /api/admin/import?city=slug -> {ok,dataVersion}
+GET /api/cities/:slug/hotspots?kind= -> {data:Hotspot[]}
+GET /api/hotspots/:id -> {data:Hotspot}
+POST /api/plan/:hotspotId -> {ok,planMarkdown,pdfUrl?}
+POST /api/docfactory/:hotspotId -> {ok,zipUrl,submissionId}
+GET /api/funds -> {data:Fund[]}
+POST /api/submissions -> {ok,id}
+PATCH /api/submissions/:id -> {ok,status|checklist|anexos}
+POST /api/hotspots/:id/status -> {ok,status}
+
+ESTILOS (branding)
+- Paleta: #F4FAF7 bg, #0E3556 primary, #F9BD12 accent, #181818 texto, #040C2E deep
+- Buttons: solid primary; outline primary; hover com leve elevação
+- Badges risco: FLOOD azul, LANDSLIDE âmbar, HEAT vermelho
+- CTA da Landing: solid primary; secondary outline; ambos responsivos
+
+LOADING/ERRO/EMPTY
+- Skeletons em Drawer; mensagens claras; retry
+- Landing “Cidades contempladas”: mostrar chips ativos (SP, Curitiba) + “Em breve”
+
+A11y/RESPONSIVO
+- Header sticky; menu hambúrguer em < md
+- Títulos H1/H2 corretos; aria-labels nos CTAs
+- Foco visível; contraste AA
+
+CRITÉRIOS DE ACEITE (FE)
+- Landing “pika” rendendo slogan, CTAs funcionais, grid de cidades
+- Admin e Prefeitura navegam corretamente
+- Drawer 5 abas funcional
+- Kanban de submissões editável

@@ -1,0 +1,183 @@
+TÍTULO
+Plataforma Municipal de Hotspots Climáticos — “Hotspot Studio LITE (Data Packs)”
+
+VISÃO (pitch de 1 frase)
+IA que aponta pontos exatos da cidade com risco climático, explica o “porquê”, calcula “agir agora vs. pagar depois”, gera plano de ação e dossiê pronto para submissão a fundos — em um clique.
+
+OBJETIVO (resultado mensurável)
+• V0 (hackathon): rodar em 2 cidades (São Paulo, Curitiba), exibir hotspots por risco, painel lateral (5 abas), gerar Plano de Ação (LLM) e Dossiê (ZIP) com FINS e pipeline de fundos.  
+• KPI primário: tempo do clique até dossiê gerado (≤ 15 s com mocks / ≤ 45 s com LLM).  
+• KPIs secundários: % hotspots com FINS completo; # submissões criadas; tempo médio de navegação até decisão (“Resolver” ou “Submeter”).
+
+ESCOPO
+• Somente riscos climáticos urbanos (sem “meio ambiente genérico”): enchente, deslizamento, ilha de calor.  
+• Sem simulação livre: a prefeitura clica em hotspots PRÉ-MAPEADOS vindos do Data Pack.  
+• Data Packs locais: `/data/{city}/pack.json` (ou conjunto de arquivos) com boundary, setores, rios, grade com features, custos e regras.  
+• Integrações externas opcionais e assíncronas (IBGE/Open-Meteo ping para FINS); o produto funciona 100% offline.
+
+PERSONAS E ACESSOS
+• Admin Nacional: vê o Brasil; cidades cadastradas coloridas; pode importar/atualizar Data Packs; gerencia lista de fundos.  
+• Prefeitura (cidade X): vê apenas o mapa da sua cidade (boundary recorte); filtra por risco; clica em hotspots; gera Plano/Dossiê/Submissões; marca status do hotspot (ALERTA → EM MITIGAÇÃO → MITIGADO).  
+• Auditor (read-only, opcional pós-v0): lê FINS e dossiês, sem editar.
+
+ARQUITETURA GERAL (monólito)
+• Frontend: Next.js (App Router) + React + TypeScript + Tailwind + shadcn/ui + MapLibre/Leaflet + TanStack Query + Zustand + Zod.  
+• Backend (no mesmo repo): API routes Next + Node/TS + Prisma (Postgres Neon).  
+• Banco: Postgres (Neon) via Prisma.  
+• LLM: Gemini (plano de ação + textos de dossiê) — com template fallback em caso de falha.  
+• Storage: ZIP gerados em disco (tmp) ou bucket (opcional).
+
+MÓDULOS
+1) Ingest/Import (Data Pack)  
+2) Hotspot Engine (score + cluster)  
+3) UI Mapa & Filtros  
+4) Painel Lateral 5 Abas (Por que aqui? / Sem intervenção / Pacote recomendado / FINS / Financiar)  
+5) LLM Planner (Plano de Ação)  
+6) Doc-Factory (Dossiê ZIP)  
+7) Funds Router (lista/pipeline por fundo)  
+8) Submissions (Kanban + anexos + reabertura)  
+9) Auditoria & FINS
+
+DATA PACK (por cidade)
+Arquivo único `pack.json` (ou conjuntos individuais) com chaves:
+{
+  "city": {"name":"Curitiba","uf":"PR","cod_ibge":"4106902","srid":"EPSG:4326"},
+  "city_boundary": FeatureCollection,
+  "sectors_ibge": FeatureCollection (população/domicílios),
+  "rivers_simple": FeatureCollection,
+  "grid_features": [
+    {"cell_id":"ctb-00001","lat":-25.4,"lng":-49.2,"impervious_pct":72.4,"tree_canopy_pct":27.6,"slope_deg":4.1|null,"dist_river_m":185.0,"pop_est":38}
+  ],
+  "rules_config": { "grid":{"cell_size_m":100},"flood":{...},"landslide":{...},"heat":{...}},
+  "cost_catalog": {
+    "flood":{"micro_drain_m3":550,"permeable_m2":220,"rain_garden_m":180},
+    "landslide":{"drain_line_m":120,"bioengineering_m2":180,"retaining_wall_m2":950},
+    "heat":{"tree_unit":480,"cool_roof_m2":180,"reflective_paint_m2":80},
+    "valor_per_capita":{"flood":1800,"landslide":4500,"heat":700}
+  },
+  "fins_seed": { "boundary_source":"...","sectors_source":"...","rivers_source":"...", "notes":[...] }
+}
+
+CÁLCULO DETERMINÍSTICO (por célula)
+Enchente: flood_score = w_hand*(1−hand_norm) + w_river*exp(−dist/decay) + w_imperv*(impervious/100)  
+Deslizamento: landslide_score = w_slope*(slope/35) + w_canopy*(1−canopy/100) + w_imperv*(impervious/100)  
+Ilha de calor: heat_score = w_imperv*(impervious/100) + w_canopy*(1−canopy/100) + w_pop*(pop/P90)  
+Clusterização (por risco): células com score ≥ threshold → agrupar por raio (150–200 m) → 1 Hotspot (centroide médio).  
+Métricas por Hotspot: score_max, médias (impervious, canopy, slope, dist_river), popExposed (soma) e referências de células.  
+FINS por Hotspot: pesos/limiares usados, versão do pack, chaves do cálculo, optionally “pings APIs” (IBGE/meteo) e observações.
+
+VALORES ECONÔMICOS
+EL_no = popExposed × valor_per_capita[risk]  
+Pacote recomendado (por risco) = itens padrão dimensionados por quantil do cluster (qtd aproximada × custo unitário do catálogo).  
+Reduções padrão (configuráveis): flood ΔP=20%, ΔD=10%; landslide ΔD=25%; heat ΔD=10%  
+EL_com = EL_no × (1 − redução global aplicada)  
+BN = EL_no − EL_com − CAPEX
+
+FLUXOS (por persona)
+
+Admin Nacional
+1) Login → /app/mapa: Brasil; cidades do programa coloridas (ex.: SP, Curitiba).  
+2) Importar/atualizar Data Pack: POST /api/admin/import?city=slug (lê pack.json, recalcula, persiste).  
+3) Gerenciar lista/pipeline de fundos (CRUD simples; texto e checklist).
+
+Prefeitura (Cidade X)
+1) Login → /app/mapa (apenas seu boundary).  
+2) Filtro por risco (enchente/deslizamento/ilha de calor).  
+3) Hotspots piscando (top-5 por score).  
+4) Clique → /app/hotspot/[id] (Painel lateral 5 abas):  
+   A) Por que aqui? — métricas (impervious, canopy, slope, dist_river, pop), mini mapa/legenda.  
+   B) Sem intervenção — EL_no (valor per cap calculado); explicação simples.  
+   C) Pacote recomendado — itens, quantidades, CAPEX, EL_com, BN.  
+   D) FINS — fontes/inputs/normas/suposições + dataset_version + eventuais pings (IBGE/meteo).  
+   E) Financiar — lista de fundos (FUNCAP/S2iD, FNMC/Fundo Clima, FNMA, PAC, FGTS/CAIXA, FINISA, BNDES Cidades) com pipeline de submissão (texto) e botão “Gerar Dossiê (ZIP)”.  
+5) “Resolver” (Plano de Ação): chama LLM com prompt estruturado e contexto do hotspot; exibe preview (PDF).  
+6) “Gerar Dossiê (ZIP)”: TR + Planilha + Memorial + FINS + imagens/legendas + pipeline do fundo.  
+7) “Submissões”: Kanban (rascunho → gerado → submetido → aprovado), permite anexar fotos e reabrir.  
+8) Alterar status do hotspot: ALERTA → EM MITIGAÇÃO (muda cor) → MITIGADO (remove do alerta); loga auditoria.
+
+TELAS (3 telas de ouro + complementos)
+• /app/mapa (Admin/Prefeitura): mapa incrível, cidades ou hotspots por risco, filtros, refresh visual.  
+• /app/hotspot/[id]: modal lateral ~45% da tela (5 abas).  
+• /app/submissoes: Kanban por fundo/status.  
+• /login, /app/admin (fundos), /settings (opcional v1).
+
+ENDPOINTS (Next API)
+GET /api/cities — lista cidades  
+GET /api/cities/:slug — detalha cidade  
+POST /api/admin/import?city=slug — lê pack.json, calcula scores, cluster e persiste hotspots  
+GET /api/cities/:slug/hotspots?kind=FLOOD|LANDSLIDE|HEAT — lista  
+GET /api/hotspots/:id — {metrics, fins, popExposed, score, kind}  
+POST /api/plan/:hotspotId — LLM (Plano de Ação)  
+POST /api/docfactory/:hotspotId — gera ZIP dossiê; cria/atualiza Submission  
+GET /api/funds — lista de fundos + pipeline/checklist (static/DB)  
+POST /api/submissions — cria submissão  
+PATCH /api/submissions/:id — anexos, atualização de etapa  
+POST /api/hotspots/:id/status — ALERTA/EM_MITIGACAO/MITIGADO  
+(Extras “prova de API” opcional)  
+GET /api/_ping/ibge?city=slug — consulta oficial simples → salva em api_sources  
+GET /api/_ping/meteo?lat=&lng= — Open-Meteo 24h → salva em api_sources
+
+BANCO (Prisma/Postgres — visão)
+City(id, name, slug, boundaryPath?, dataVersion, createdAt)  
+Hotspot(id, cityId→City, kind, lat, lng, score, popExposed, metrics(jsonb), fins(jsonb), status, createdAt)  
+Fund(id, name, type, pipeline(jsonb), checklist(jsonb))  
+Submission(id, cityId, fundId→Fund, title, status, zipPath?, checklist(jsonb), createdAt)  
+ApiSource(id, cityId, kind, payload(jsonb), fetchedAt)  
+AuditLog(id, entity, entityId, action, before(jsonb), after(jsonb), at)
+
+LLM PROMPTS (resumos)
+
+Plano de Ação (POST /api/plan/:hotspotId)
+“Você é engenheiro de adaptação urbana. Gere um PLANO DE AÇÃO para MITIGAR o risco em {hotspot_id}/{city}. Dados: {kind,score,popExposed,metrics,cost_catalog,reducoes}. Formato: 1) Diagnóstico (Por que aqui?) 2) Pacote recomendado (itens+quantidades+CAPEX) 3) Cronograma (rápido/estrutural) 4) Redução esperada (EL_com/BN) 5) Checklist (fotos, laudos) 6) Texto de ofício (copiável).”
+
+Dossiê (Doc-Factory)
+Usa o Plano + FINS + mapas/imagens geradas; compõe TR, Planilha, Memorial, Pipeline do fundo e referências.
+
+FINS — política
+Cada hotspot precisa de FINS com: pesos/limiares usados; versão do pack; fórmulas; fontes do boundary/setores/rios; eventuais pings IBGE/meteo; observações de licença/limitação.
+
+SEGURANÇA & PERMISSÕES
+• Auth simples (JWT) c/ roles: ADMIN, PREFEITURA.  
+• Prefeitura só vê sua cidade.  
+• Import protegido (apenas ADMIN).  
+• Logs de auditoria (status hotspot, submissões).
+
+OBSERVABILIDADE
+• Logs estruturados (pino) por rota.  
+• Métricas básicas: tempo de import, tempo para Doc-Factory, % sucesso LLM, erros por rota.
+
+PERFORMANCE
+• Mapa: cluster de marcadores e paginação se > 10k pontos.  
+• Import/cluster: em memória (para hackathon); otimizar depois (workers/streams).  
+• Geometrias simplificadas; 6 casas decimais.
+
+ASSUNÇÕES
+• Data Packs de São Paulo e Curitiba estão prontos.  
+• Fundo router: pipelines prontos (texto + checklist); submissão “oficial” é manual com ZIP — V0 não integra S2iD/BNDES.  
+• LLM pode falhar; fallback textual cobre V0.
+
+RISCOS & MITIGAÇÕES
+• Data Pack inconsistente → validar schema no import e abortar com relatório.  
+• LLM indisponível → fallback (templates).  
+• Geometrias pesadas → simplificação agressiva.  
+• Falta de internet → produto segue offline.
+
+MÉTRICAS DE SUCESSO (v0)
+• Clique→Plano de Ação (≤ 10 s com mock / ≤ 30 s com LLM)  
+• Clique→Dossiê ZIP (≤ 15–45 s)  
+• ≥ 90% hotspots com FINS completo  
+• 1 dossiê gerado por cidade durante a demo
+
+ROADMAP
+• v0 (hackathon): SP/Curitiba com Data Packs; mapa, filtros, painel 5 abas; Plano (LLM), Dossiê (ZIP), Kanban de submissões, status hotspot.  
+• v0.1: scripts de atualização automática dos Data Packs (cron), pings IBGE/meteo salvos; upload de fotos na submissão.  
+• v1: PostGIS leve, jobs assíncronos, recalibrar regras por cidade, integração parcial com S2iD/Transferegov (opcional).  
+• v2: previsão hiperlocal (quando houver dataset); elegibilidade automática por fundo.
+
+GLOSSÁRIO
+Hotspot: ponto agregado de células de risco.  
+EL_no/EL_com/BN: perda esperada sem/com intervenção e benefício líquido.  
+FINS: Fontes, Inputs, Normas, Suposições — trilha de explicabilidade.  
+Data Pack: pacote local por cidade com tudo necessário para gerar hotspots.
+
+FIM

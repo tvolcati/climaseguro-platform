@@ -1,0 +1,128 @@
+TÍTULO
+UX/UI — Telas obrigatórias v0 e padrões de interação
+
+OBJETIVO
+Descrever as telas da v0, fluxos de navegação, estados (loading/erro/empty), padrões de componentes e acessibilidade.
+
+BRANDING (resumo)
+- Slogan: “Clima Seguro: o Brasil preparado para o clima do futuro”
+- Paleta: #F4FAF7 (bg), #0E3556 (primary), #F9BD12 (accent), #181818 (ink), #040C2E (deep)
+- Fonte: Open Sans (400/600/700)
+- Logo: /public/brand/clima.seguro.svg
+
+PAPÉIS
+- ADMIN (visualiza BR e /admin)
+- PREFEITURA (visualiza apenas sua cidade)
+
+TELAS OBRIGATÓRIAS v0
+
+1) LANDING “/”
+- Header (fixo): logo + nav (“Produto”, “Cidades”, “Como funciona”, “Entrar”)
+- Hero: título (H1), subtítulo, CTAs:
+  - “Acessar como município” → /auth/login
+  - “Ver cidades contempladas” → âncora #cidades
+- “Prova visual”: mock de mapa com hotspots piscando (imagem/placeholder)
+- Seção “Benefícios” (3 cards): Precisão no ponto / Decisão com números / Dossiê imediato
+- “Cidades contempladas” (#cidades): chips “São Paulo (SP)”, “Curitiba (PR)”, “Outras em breve”
+- “Como funciona”: 4 passos (Data Pack → Hotspots → Plano IA → Dossiê)
+- “Fundos compatíveis”: tiras (FUNCAP, FNMC, FNMA, PAC, FGTS, FINISA, BNDES)
+- Footer: contato (mailto), termos, versão
+- Estados: mobile (menu hambúrguer), redução de movimento (sem animações desnecessárias)
+
+2) LOGIN “/auth/login”
+- Card central: email (texto), senha (password – mock), select “Perfil: ADMIN / PREFEITURA”
+- Se PREFEITURA: select “Cidade” (SP/Curitiba)
+- CTA “Entrar” → seta/auth.role e auth.city_slug (Zustand) e redireciona:
+  - ADMIN → /app/mapa (Brasil)
+  - PREFEITURA → /app/mapa (boundary da cidade)
+- Erros: simples (mock), validações mínimas (não bloquear fluxo)
+
+3) MAPA “/app/mapa”
+- ADMIN:
+  - Mapa BR (MapLibre/Leaflet) com cidades do programa coloridas; demais cinza
+  - Tooltip ao passar: nome e UF; click → modal “Acesse como prefeitura para ver hotspots”
+- PREFEITURA:
+  - FitBounds no boundary (dummy/fixture)
+  - Barra superior com filtros: FLOOD | LANDSLIDE | HEAT | ALL (Badges)
+  - Lista de hotspots no mapa (marcadores); top-5 por score com “animate-pulse”
+  - Click no marcador → abre Drawer (rota /app/hotspot/[id])
+- Ações extras:
+  - Botão “Atualizar” (refetch visual)
+  - Legenda de risco (cores)
+- Empty state: “Nenhum hotspot para este risco”
+- Erro: toast + botão “Tentar de novo”
+- Loading: skeleton dos marcadores/drawer
+
+4) HOTSPOT (Drawer) “/app/hotspot/[id]”
+- Drawer lateral (Sheet shadcn/ui), 45vw (≥lg) e full-screen (<md)
+- Header: título “Hotspot {id} — {risk}”, badges (score, status)
+- Tabs (5):
+  1) Por que aqui?
+     - <MetricsList> (impervious, canopy, slope, dist_river, popExposed)
+     - Mini-mapa com círculo/heat e legenda
+  2) Sem intervenção
+     - EL_no (monetário) = popExposed × valor_per_capita[risk]
+     - Parágrafo explicativo (FINS-resumo)
+  3) Pacote recomendado
+     - Tabela/Cartas: item, qty (aprox), custo unit, subtotal
+     - CAPEX + EL_com + BN (cards)
+  4) FINS
+     - Accordion JSON-friendly: pesos/limiares, datasetVersion, fontes, pings IBGE/meteo, observações
+  5) Financiar
+     - Cards dos fundos (nome + tipo + pipeline breve)
+     - Botões:
+       - “Gerar Plano de Ação” (chama /api/plan; mostra preview em modal; export PDF opcional)
+       - “Gerar Dossiê (ZIP)” (chama /api/docfactory; toast e link; cria Submission)
+- Ações do hotspot (canto do Drawer):
+  - [Em mitigação] → badge azul; Update status; toast
+  - [Mitigado] → remove do alerta (status=MITIGADO); toast
+- Estados:
+  - Loading: skeleton das 5 abas
+  - Erro: mensagem + retry
+  - Empty: não se aplica (sempre vindo de um id válido)
+
+5) SUBMISSÕES “/app/submissoes”
+- Kanban: colunas “rascunho”, “gerado”, “submetido”, “aprovado”
+- Card → <SubmissionDialog>:
+  - Título, Fundo, Status (dropdown), Checklist (checkboxes), Anexos (drag & drop – mock)
+  - Botões: “Salvar”, “Marcar como …”
+- Empty: “Nenhuma submissão ainda”
+
+6) ADMIN FUNDOS “/app/admin” (ADMIN)
+- Tabela de fundos: nome, tipo, ações (Editar/Remover)
+- Modal de edição: pipeline (array de etapas), checklist (array de itens)
+- Botão “Novo Fundo”
+- Mensagens (toasts) para alterações
+
+PADRÕES DE COMPONENTES
+- Buttons: solid (primary), outline (primary), ghost (ink)
+- Badges: risco (FLOOD azul, LANDSLIDE âmbar, HEAT vermelho), status (ALERTA pulsante, EM MITIGAÇÃO azul, MITIGADO cinza)
+- Cards: sombra leve, radius md; títulos h3
+- Tabs: underline accent (#F9BD12) na ativa
+- Table: zebra suave
+- Toast: success/erro com mensagens objetivas
+
+ACESSIBILIDADE (AA)
+- Contraste mínimo 4.5:1 para texto principal
+- Foco visível (outline)
+- aria-labels em ícones e botões
+- Navegação por teclado no Drawer e Tabs
+- `prefers-reduced-motion` respeitado (desativa pulse dos marcadores, usa highlight)
+
+RESPONSIVO
+- Header sticky, menu hambúrguer < md
+- Drawer full-screen < md
+- Grid das “Cidades contempladas” vira 1 coluna em mobile
+- Breakpoints: sm 640 / md 768 / lg 1024 / xl 1280
+
+MICROCOPY (tom público)
+- CTA Landing: “Acessar como município”, “Ver cidades contempladas”
+- Drawer/Financiar: “Gerar Plano de Ação”, “Gerar Dossiê (ZIP)”
+- Toasts: “Plano de ação gerado”, “Dossiê criado (ZIP pronto)”, “Status atualizado”
+
+CHECKLIST DE ACEITE (UX/UI)
+- Landing comunica proposta em 5s, CTAs funcionais
+- Mapa navega fluido (SP/Curitiba)
+- Drawer com 5 abas, sem rolagem confusa (overflow tratado)
+- Kanban permite alterar status e reabrir submissão
+- A11y básica verificada

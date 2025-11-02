@@ -1,0 +1,54 @@
+TÍTULO
+Tech Stack — Clima Seguro (v0)
+
+FRONTEND
+- Next.js 14 (App Router), React 18, TypeScript
+- Tailwind CSS + shadcn/ui (UI kit)
+- MapLibre/Leaflet (mapa)
+- TanStack Query (fetch/cache), Zustand (estado global)
+- Zod (validação), dayjs, lucide-react
+- Fonte: Open Sans (Google Fonts)
+
+BACKEND (monólito Next)
+- Next API routes (Node/TS)
+- Prisma ORM
+- PDFKit (gerar PDFs do dossiê), archiver (ZIP)
+- pino (logs), zod (validação), jose (JWT simples)
+
+BANCO DE DADOS
+- Postgres (Neon)
+- Prisma como gerenciador e migrations
+- Tipos JSONB para FINS/metrics/checklist/pipeline
+
+IA (GenAI)
+- OpenAI API (OPENAI_API_KEY) — geração de Plano de Ação (markdown→PDF)
+  - Modelo sugerido v0: gpt-4o-mini ou gpt-4.1-mini (custo baixo, latência ok)
+  - Fallback: template estático (sem IA)
+
+APIs PÚBLICAS (respaldo — opcionais)
+- IBGE localidades/municípios (nome→metadata; caching 24h)
+- Open-Meteo (chuva 24h; caching 1–3h)
+- Overpass/OSM (opcional; marcar SKIPPED se quota/timeout)
+
+DATA PACKS (v0)
+- São Paulo e Curitiba em JSON (pack.json por cidade)
+- Script futuro para atualização automática (cron/GitHub Actions)
+
+DEV & BUILD
+- pnpm, eslint/prettier, husky (pre-commit opcional)
+- Vercel (front/back) ou Node server simples
+- .env: DATABASE_URL, OPENAI_API_KEY (e NEON creds)
+
+OBSERVABILIDADE
+- Logs estruturados (pino), request-id
+- Contadores simples (tempo de “Gerar Dossiê”, % falha IA)
+
+SEGURANÇA
+- JWT básico (role + city_slug)
+- Rate limit leve em rotas “plan” e “docfactory”
+- Sem PII; dados agregados
+
+ROADMAP TÉCNICO
+- v0: mocks + Data Packs; depois troca para endpoints reais do monólito
+- v0.1: jobs assíncronos (BullMQ) e PostGIS opcional
+- v1: integrações parciais com S2iD/Transferegov (se desejado)

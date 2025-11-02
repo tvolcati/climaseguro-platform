@@ -1,0 +1,180 @@
+TÍTULO
+Schema de Banco — Clima Seguro (Postgres + Prisma)
+
+OBJETIVO
+Cobrir TODA a lógica: cidades (Data Packs), hotspots, cálculo/explicabilidade (FINS), fundos e submissões (ZIP), pings de APIs (respaldo no FINS), auditoria, status/versões, auth simples por perfis.
+
+TECNOL0GIA
+- Postgres (Neon)
+- Prisma ORM
+- Tipos JSONB (Prisma Json)
+- Constrains: PK/FK/UNIQUE/INDEX
+- Timezone UTC; createdAt/updatedAt
+
+ENUMS
+- Role: ADMIN | PREFEITURA
+- HotspotKind: FLOOD | LANDSLIDE | HEAT
+- HotspotStatus: ALERTA | EM_MITIGACAO | MITIGADO
+- SubmissionStatus: RASCUNHO | GERADO | SUBMETIDO | APROVADO
+
+PRISMA (schema.prisma — models)
+
+model User {
+  id         String  @id @default(cuid())
+  email      String  @unique
+  password   String
+  role       Role
+  cityId     String?   // se PREFEITURA, aponta sua cidade
+  city       City?     @relation(fields: [cityId], references: [id])
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  @@index([role, cityId])
+}
+
+model City {
+  id           String   @id
+  name         String
+  uf           String   @db.Char(2)
+  slug         String   @unique
+  codIbge      String   @db.VarChar(7)
+  boundaryPath String?  // caminho do GeoJSON local (opcional)
+  dataVersion  String   // hash/versão do Data Pack
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  hotspots     Hotspot[]
+  submissions  Submission[]
+  apiSources   ApiSource[]
+
+  @@index([slug])
+  @@index([codIbge])
+}
+
+model Hotspot {
+  id          String        @id @default(cuid())
+  cityId      String
+  city        City          @relation(fields: [cityId], references: [id])
+  kind        HotspotKind
+  lat         Float
+  lng         Float
+  score       Float
+  popExposed  Int
+  metrics     Json          // médias agregadas (impervious, canopy, slope, dist_river ...)
+  fins        Json          // FINS completo (pesos, fórmulas, versões, pings)
+  status      HotspotStatus @default(ALERTA)
+  cellsRef    Json?         // referência opcional às cell_ids do cluster
+  datasetVer  String        // mesma versão do data pack usado no cálculo
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([cityId, kind, status])
+  @@index([cityId, score])
+  @@index([datasetVer])
+}
+
+model Fund {
+  id        String   @id
+  name      String
+  type      String
+  pipeline  Json     // etapas textuais visuais
+  checklist Json     // itens obrigatórios
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Submission {
+  id         String           @id @default(cuid())
+  cityId     String
+  fundId     String
+  title      String
+  status     SubmissionStatus @default(RASCUNHO)
+  zipPath    String?
+  checklist  Json?
+  payload    Json?            // snapshot dos dados usados (opcional)
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+  city       City             @relation(fields: [cityId], references: [id])
+  fund       Fund             @relation(fields: [fundId], references: [id])
+  logs       SubmissionLog[]
+
+  @@index([cityId, fundId, status])
+  @@index([createdAt])
+}
+
+model SubmissionLog {
+  id           String     @id @default(cuid())
+  submissionId String
+  at           DateTime   @default(now())
+  action       String     // ex: "GERADO_ZIP", "ATUALIZADO_STATUS", "ANEXO_ADICIONADO"
+  before       Json?
+  after        Json?
+  submission   Submission @relation(fields: [submissionId], references: [id])
+
+  @@index([submissionId, at])
+}
+
+model ApiSource {
+  id        String   @id @default(cuid())
+  cityId    String
+  kind      String   // "IBGE" | "METEO" | "OSM" ...
+  payload   Json
+  fetchedAt DateTime @default(now())
+  city      City     @relation(fields: [cityId], references: [id])
+
+  @@index([cityId, kind, fetchedAt])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  entity    String   // "Hotspot" | "Submission" | "Fund" | ...
+  entityId  String
+  action    String   // "CREATE" | "UPDATE" | "DELETE"
+  actorId   String?  // User.id
+  before    Json?
+  after     Json?
+  at        DateTime @default(now())
+
+  @@index([entity, entityId, at])
+}
+
+model CostCatalog {         // opcional persistido; v0 pode vir do Data Pack
+  id        String   @id @default(cuid())
+  cityId    String
+  kind      String   // flood|landslide|heat
+  items     Json     // { micro_drain_m3: 550, permeable_m2: 220, ... }
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  city      City     @relation(fields: [cityId], references: [id])
+
+  @@index([cityId, kind])
+}
+
+model InterventionCatalog { // opcional
+  id        String   @id @default(cuid())
+  kind      String   // flood|landslide|heat
+  spec      Json     // regras de composição do pacote recomendado
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+/// Enums (Prisma)
+enum Role { ADMIN PREFEITURA }
+enum HotspotKind { FLOOD LANDSLIDE HEAT }
+enum HotspotStatus { ALERTA EM_MITIGACAO MITIGADO }
+enum SubmissionStatus { RASCUNHO GERADO SUBMETIDO APROVADO }
+
+REGRAS IMPORTANTES REFLETIDAS
+- Versão do Data Pack por hotspot (Hotspot.datasetVer) e por cidade (City.dataVersion).
+- Explicabilidade FINS por hotspot (Hotspot.fins JSONB).
+- Status do hotspot com trilha de auditoria (AuditLog).
+- Submissões com logs de eventos (SubmissionLog) e checklist/pipeline por fundo (Fund).
+- Pings de APIs salvos (ApiSource) para referenciar em FINS/dossiê.
+- Índices para consultas por city, risk, status e score.
+
+MIGRAÇÕES (nomes sugeridos)
+- 001_init_core
+- 002_add_indexes
+- 003_add_cost_intervention_catalogs (se necessário)
+
+POLÍTICAS
+- Soft delete não aplicado na v0; usar AuditLog para rastrear alterações.
+- JSONB sempre com “schema” informal documentado nos serviços.

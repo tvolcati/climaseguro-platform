@@ -1,0 +1,59 @@
+TÍTULO
+Design System — Clima Seguro
+
+SLOGAN
+“Clima Seguro: o Brasil preparado para o clima do futuro.”
+
+PALETA (HEX)
+Branco (Surface)   #F4FAF7
+Amarelo (Accent)   #F9BD12
+Preto (Ink)        #181818
+Azul (Primary)     #0E3556
+Verde (Deep)       #040C2E
+
+DERIVADOS (tokens)
+--bg:        #F4FAF7
+--ink:       #181818
+--primary:   #0E3556
+--accent:    #F9BD12
+--deep:      #040C2E
+--muted:     #E6EFEA
+--danger:    #D92D20
+--success:   #16A34A
+--border:    #D9E5DE
+
+TIPOGRAFIA
+Fonte: Open Sans (400/600/700). Títulos em 700; corpo 400; CTAs 600.
+Escala: h1 40/48; h2 28/36; h3 22/30; body 16/24; small 14/20; micro 12/16.
+
+LOGO
+Arquivo: /public/brand/clima.seguro.svg (fornecido).
+Uso:
+- Header: altura 28–32px; versão colorida sobre fundo --bg.
+- Landing hero: versão grande (altura 56–72px) acima do slogan.
+Zona de respiro: 8px ao redor.
+
+COMPONENTES (shadcn/ui estilizados)
+- Button: solid (primary #0E3556 com texto #F4FAF7), outline (border #0E3556 texto #0E3556), ghost (ink).
+- Badge risco: FLOOD azul (--primary), LANDSLIDE âmbar (#FF9D0A), HEAT vermelho (#F04438).
+- Card: radius md, sombra suave; header com h3, body com texto 16.
+- Tabs: underline accent (#F9BD12) na ativa.
+- Drawer/Sheet: fundo branco com overlay subtle; largura 45vw (≥ lg), full em < md.
+- Table: zebra leve (#E6EFEA 12%); header em --primary.
+- Toast: success (--success), error (--danger).
+
+ACESSIBILIDADE
+- Contraste AA mínimo 4.5:1 (texto primário); botões com foco visível; aria-label em ícones; ordem tab previsível.
+- Motion: animações ≤ 200ms, `prefers-reduced-motion` respeitado.
+
+IMAGÉTICA
+- Mapa/gradientes discretos; ícones lucide-react; sem emojis.
+- Ilustrações: linhas finas, cores primária/accent.
+
+MICROCOPY (tom público, objetivo)
+- CTA: “Ver sua cidade”, “Explorar cidades contempladas”, “Entrar no painel”.
+- Empty states claros: “Nenhum ponto para este risco”, “Atualize os dados ou selecione outro filtro”.
+
+EXEMPLOS DE APLICAÇÃO DE COR
+- Header: fundo branco, logo colorida, CTA “Entrar” (outline).
+- Hero: fundo branco; headline em --primary; subhead em --ink; CTA solid (primary) + secondary (outline).
