@@ -1,0 +1,13 @@
+Fundo Estadual de Proteção (exemplo) - TermoResponsabilidadeTecnica
+
+Gerado em: 02/11/2025 09:45
+
+Contexto do Processo:
+
+- process_id: 1
+
+- zone_id: 15
+
+- form: {'responsavel': 'FODSAE', 'data_vistoria': '1991-12-12', 'observacoes': 'TESTE', 'acao_imediata': 'TESTE'}
+
+- photos: [{'path': 'C:\\Users\\pc\\OneDrive\\Desktop\\INTELI\\climaseguro-platform\\storage\\images\\1\\0_Captura de tela 2025-08-08 205613.png', 'description': "Descrição automática: análise técnica preliminar – arquivo '0_Captura de tela 2025-08-08 205613.png'."}, {'path': 'C:\\Users\\pc\\OneDrive\\Desktop\\INTELI\\climaseguro-platform\\storage\\images\\1\\1_Captura de tela 2025-08-08 161341.png', 'description': "Descrição automática: análise técnica preliminar – arquivo '1_Captura de tela 2025-08-08 161341.png'."}]

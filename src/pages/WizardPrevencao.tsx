@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -8,19 +8,25 @@ import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
 import logoSvg from "@/assets/clima-seguro-logo.svg";
+import { apiCreateProcess, apiUploadPhotos, apiSubmitForm, apiListFunds, apiGenerateDocuments, getDocumentUrl } from "@/lib/api";
 
 const WizardPrevencao = () => {
   const { zoneId } = useParams();
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [uploadedPhotos, setUploadedPhotos] = useState<File[]>([]);
+  const [photosAI, setPhotosAI] = useState<{ id: number; filePath: string; description: string }[]>([]);
   const [formData, setFormData] = useState({
     responsavel: "",
     data_vistoria: "",
     observacoes: "",
     acao_imediata: "",
   });
-  const [generatedDocs, setGeneratedDocs] = useState<string[]>([]);
+  const [processId, setProcessId] = useState<number | null>(null);
+  const [funds, setFunds] = useState<{ code: string; name: string; required_documents: string[] }[]>([]);
+  const [selectedFund, setSelectedFund] = useState<string | null>(null);
+  const [generatedDocs, setGeneratedDocs] = useState<{ id: number; name: string; type: string; url: string }[]>([]);
+  const [loading, setLoading] = useState(false);
 
   const progress = (currentStep / 3) * 100;
 
@@ -34,24 +40,47 @@ const WizardPrevencao = () => {
     setUploadedPhotos((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleNextStep = () => {
-    if (currentStep === 1 && uploadedPhotos.length === 0) {
-      toast.error("Adicione pelo menos uma foto para continuar");
-      return;
-    }
-    if (currentStep === 2) {
-      if (!formData.responsavel || !formData.data_vistoria) {
-        toast.error("Preencha os campos obrigatórios");
+  const handleNextStep = async () => {
+    try {
+      // Etapa 1 → criar processo e subir fotos
+      if (currentStep === 1) {
+        if (uploadedPhotos.length === 0) {
+          toast.error("Adicione pelo menos uma foto para continuar");
+          return;
+        }
+        setLoading(true);
+        const { processId: pid } = await apiCreateProcess(Number(zoneId));
+        setProcessId(pid);
+        const { photos } = await apiUploadPhotos(pid, uploadedPhotos);
+        setPhotosAI(photos);
+        toast.success("Fotos enviadas e descritas por IA");
+        setCurrentStep(2);
         return;
       }
-      // Simula geração de documentos
-      setGeneratedDocs([
-        "Ofício de Notificação aos Moradores",
-        "Relatório Técnico de Risco",
-        "Plano de Ação Emergencial",
-      ]);
+
+      // Etapa 2 → enviar formulário e preparar fundos
+      if (currentStep === 2) {
+        if (!formData.responsavel || !formData.data_vistoria) {
+          toast.error("Preencha os campos obrigatórios");
+          return;
+        }
+        if (!processId) {
+          toast.error("Processo não inicializado");
+          return;
+        }
+        setLoading(true);
+        await apiSubmitForm(processId, formData);
+        const { funds } = await apiListFunds();
+        setFunds(funds);
+        setSelectedFund(funds[0]?.code ?? null);
+        setCurrentStep(3);
+        return;
+      }
+    } catch (err: any) {
+      toast.error(err?.message || "Erro ao avançar etapa");
+    } finally {
+      setLoading(false);
     }
-    setCurrentStep((prev) => prev + 1);
   };
 
   const handlePreviousStep = () => {
@@ -63,6 +92,23 @@ const WizardPrevencao = () => {
     setTimeout(() => {
       navigate("/prefeitura/curitiba");
     }, 1500);
+  };
+
+  const handleGenerateDocs = async () => {
+    if (!processId || !selectedFund) {
+      toast.error("Selecione um fundo e conclua as etapas anteriores");
+      return;
+    }
+    try {
+      setLoading(true);
+      const { documents } = await apiGenerateDocuments(processId, selectedFund);
+      setGeneratedDocs(documents);
+      toast.success("Documentos gerados");
+    } catch (err: any) {
+      toast.error(err?.message || "Erro ao gerar documentos");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -140,6 +186,9 @@ const WizardPrevencao = () => {
                           <span className="text-4xl">📷</span>
                         </div>
                         <p className="text-xs mt-1 truncate">{photo.name}</p>
+                        {photosAI[index]?.description && (
+                          <p className="text-xs text-muted-foreground mt-1">{photosAI[index].description}</p>
+                        )}
                         <Button
                           variant="destructive"
                           size="sm"
@@ -155,7 +204,7 @@ const WizardPrevencao = () => {
               )}
 
               <div className="flex justify-end">
-                <Button onClick={handleNextStep} size="lg">
+                <Button onClick={handleNextStep} size="lg" disabled={loading}>
                   Próximo →
                 </Button>
               </div>
@@ -171,6 +220,20 @@ const WizardPrevencao = () => {
                   Preencha os dados técnicos da vistoria realizada
                 </p>
               </div>
+
+              {/* Resumo das fotos com descrição da IA */}
+              {photosAI.length > 0 && (
+                <div className="space-y-3">
+                  <p className="font-medium">Fotos e descrições geradas pela IA:</p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {photosAI.map((p) => (
+                      <Card key={p.id} className="p-4">
+                        <p className="text-sm text-muted-foreground break-words">{p.description}</p>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <div className="space-y-4">
                 <div className="space-y-2">
@@ -224,7 +287,7 @@ const WizardPrevencao = () => {
                 <Button variant="outline" onClick={handlePreviousStep}>
                   ← Voltar
                 </Button>
-                <Button onClick={handleNextStep} size="lg">
+                <Button onClick={handleNextStep} size="lg" disabled={loading}>
                   Gerar Documentos →
                 </Button>
               </div>
@@ -241,24 +304,62 @@ const WizardPrevencao = () => {
                 </p>
               </div>
 
-              <div className="space-y-3">
-                <p className="font-medium">Documentos gerados:</p>
-                {generatedDocs.map((doc, index) => (
-                  <Card key={index} className="p-4 hover:shadow-md transition-shadow">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <span className="text-2xl">📄</span>
-                        <div>
-                          <p className="font-medium">{doc}</p>
-                          <p className="text-xs text-muted-foreground">Zona {zoneId} - {new Date().toLocaleDateString('pt-BR')}</p>
-                        </div>
-                      </div>
-                      <Button variant="outline" size="sm">
-                        Visualizar
+              <div className="space-y-4">
+                <div>
+                  <p className="font-medium mb-2">Selecione o fundo para submissão:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {funds.map((f) => (
+                      <Button
+                        key={f.code}
+                        variant={selectedFund === f.code ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setSelectedFund(f.code)}
+                      >
+                        {f.name}
                       </Button>
-                    </div>
-                  </Card>
-                ))}
+                    ))}
+                  </div>
+                </div>
+
+                {/* Documentos exigidos pelo fundo selecionado */}
+                {selectedFund && (
+                  <div className="text-sm text-muted-foreground">
+                    <p className="font-medium text-foreground mb-1">Documentos exigidos:</p>
+                    <ul className="list-disc ml-5">
+                      {funds.find((f) => f.code === selectedFund)?.required_documents.map((d) => (
+                        <li key={d}>{d}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                <div className="flex justify-end">
+                  <Button onClick={handleGenerateDocs} disabled={loading || !selectedFund}>
+                    Gerar Documentos
+                  </Button>
+                </div>
+
+                {generatedDocs.length > 0 && (
+                  <div className="space-y-3">
+                    <p className="font-medium">Documentos gerados:</p>
+                    {generatedDocs.map((doc) => (
+                      <Card key={doc.id} className="p-4 hover:shadow-md transition-shadow">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <span className="text-2xl">📄</span>
+                            <div>
+                              <p className="font-medium">{doc.name}</p>
+                              <p className="text-xs text-muted-foreground">Zona {zoneId} - {new Date().toLocaleDateString('pt-BR')}</p>
+                            </div>
+                          </div>
+                          <a href={getDocumentUrl(doc.url)} target="_blank" rel="noreferrer">
+                            <Button variant="outline" size="sm">Visualizar</Button>
+                          </a>
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <Card className="p-4 bg-blue-50 border-blue-200">
@@ -272,7 +373,7 @@ const WizardPrevencao = () => {
                 <Button variant="outline" onClick={handlePreviousStep}>
                   ← Voltar
                 </Button>
-                <Button onClick={handleFinish} size="lg" className="bg-green-600 hover:bg-green-700">
+                <Button onClick={handleFinish} size="lg" className="bg-green-600 hover:bg-green-700" disabled={generatedDocs.length === 0}>
                   ✓ Validar e Finalizar
                 </Button>
               </div>
